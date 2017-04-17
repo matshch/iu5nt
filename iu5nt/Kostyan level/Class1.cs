@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
+using System.Collections;
+
+
 
 namespace iu5nt.Kostyan_level
 {
@@ -59,8 +62,57 @@ namespace iu5nt.Kostyan_level
         {
             SerialPort sp = (SerialPort)sender;
             string indata = sp.ReadExisting();
+            //TODO
         }
 
+        private static byte[] BitArrayToByteArray(BitArray bits)
+        {
+            byte[] ret = new byte[(bits.Length - 1) / 8 + 1];
+            bits.CopyTo(ret, 0);
+            return ret;
+        }
+
+        private static void cycleCode(byte[] first, bool type)
+        {
+            byte[] second;
+            BitArray buffer = new BitArray(first);
+            if (type)
+            {
+                //Todo сделать чтобы работало для 2 байтов
+                BitArray smallBuffer = new BitArray(0);
+                smallBuffer.Length = 15;
+
+                BitArray bigBuffer = new BitArray(0);
+                bigBuffer.Length = 15;
+
+                for (var i = 0; i < 11; i++)
+                {
+                    smallBuffer.Set(i, buffer[i]);
+                }
+                for (var i = 11; i < 16; i++)
+                {
+                    bigBuffer.Set(i - 5, buffer[i]);
+                }
+                var smallOst = BitConverter.ToInt32(BitArrayToByteArray(smallBuffer),0);
+                var bigOst = BitConverter.ToInt32(BitArrayToByteArray(bigBuffer),0);
+                int polynome = 19;
+                while(smallOst > 15)
+                {
+                    var clonePoly = polynome;
+                    polynome = polynome << (Convert.ToString(smallOst,2).Length -4);
+                    smallOst = smallOst ^ polynome;
+                }
+                while (bigOst > 15)
+                {
+                    var clonePoly = polynome;
+                    polynome = polynome << (Convert.ToString(bigOst, 2).Length - 4);
+                    bigOst = bigOst ^ polynome;
+                }
+                second = BitConverter.GetBytes(smallOst);
+
+            }
+            //return second;
+        }
 
     }
 }
