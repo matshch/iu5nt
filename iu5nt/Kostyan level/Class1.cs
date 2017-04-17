@@ -108,7 +108,7 @@ namespace iu5nt.Kostyan_level
                     polynome = polynome << (Convert.ToString(bigOst, 2).Length - 4);
                     bigOst = bigOst ^ polynome;
                 }
-                second = BitConverter.GetBytes(smallOst);
+                second = BitConverter.GetBytes(smallOst).Skip(2).Concat(BitConverter.GetBytes(bigOst).Skip(2)).ToArray();
 
             }
             //return second;
