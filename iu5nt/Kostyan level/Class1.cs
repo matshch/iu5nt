@@ -150,7 +150,7 @@ namespace iu5nt.Kostyan_level
     {
         static SerialPort _serialPort;
         public static bool connected = false;
-        public static List<int> failList = learning();
+        public static List<UInt32> failList = learning();
         public static void Connect(String portName)
         {
             if (connected)
@@ -184,25 +184,25 @@ namespace iu5nt.Kostyan_level
             }
             //TODO
         }
-        static public List<int> learning()
+        static public List<UInt32> learning()
         {
-            var study = 16384;
-            int qbite = study;
-            var osn = 19;
+            UInt32 study = 16384;
+            UInt32 qbite = study;
+            UInt32 osn = 19;
             while (qbite > 15)
             {
-                var clone = osn;
+                UInt32 clone = osn;
                 clone = clone << ((int)Math.Log(qbite, 2));
                 qbite ^= clone;
             }
             study = study + qbite;
-            var getBuffed = new List<int>();
+            var getBuffed = new List<UInt32>();
             for (var i = 0; i < 15; i++)
             {
                 var bits = BitConverter.GetBytes(study);
                 var beef = new BitArray(new byte[] { bits[0],bits[1]});
                 beef.Set(i, !beef.Get(i));
-                var number = new int[1];
+                var number = new UInt32[1];
                 beef.CopyTo(number, 0);
                 qbite = number[0];
                 while (qbite > 15)
@@ -218,12 +218,12 @@ namespace iu5nt.Kostyan_level
         static BitArray deCycle(byte[] cycled)
         {
 
-            var buffer = BitConverter.ToInt16(cycled,0);
-            int qbite = buffer;
-            var osn = 19;
+            var buffer = BitConverter.ToUInt32(cycled,0);
+            UInt32 qbite = buffer;
+            UInt32 osn = 19;
             while (qbite > 15)
             {
-                var clone = osn;
+                UInt32 clone = osn;
                 clone = clone << ((int)Math.Log(qbite, 2));
                 qbite ^= clone;
             }
@@ -273,14 +273,14 @@ namespace iu5nt.Kostyan_level
             return ret;
         }
         private static byte[] getCycled(BitArray eleven) {
-            int[] buffer = new int[1];
+            UInt32[] buffer = new UInt32[1];
             eleven.CopyTo(buffer, 0);
-            var qbite = buffer[0];
+            UInt32 qbite = buffer[0];
             qbite *= 16;
-            var osn = 19;
+            UInt32 osn = 19;
             while (qbite > 15)
             {
-                var clone = osn;
+                UInt32 clone = osn;
                 clone = clone << ((int)Math.Log(qbite, 2));
                 qbite ^= clone;
             }
@@ -289,7 +289,6 @@ namespace iu5nt.Kostyan_level
 
         }
        
-
     }
 
  }
