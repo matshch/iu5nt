@@ -30,6 +30,7 @@ namespace iu5nt
         {
             InitializeComponent();
             PortsList.ItemsSource = SerialPort.GetPortNames();
+            DataLink.onRecieve += ReceiveMessage;
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
@@ -141,6 +142,48 @@ namespace iu5nt
             MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
 
             timer.Tick -= FileNameSending_Timeout;
+        }
+
+        private void ReceiveMessage(byte[] packet, bool check)
+        {
+            if (!check)
+            {
+                MessageBox.Show("Получен повреждённый пакет.");
+                return;
+            }
+
+            var stream = new MemoryStream(packet);
+            var reader = new BinaryReader(stream);
+            switch ((MessageType)reader.ReadByte())
+            {
+                case MessageType.FileName:
+                    ParseFileName(reader);
+                    break;
+                case MessageType.FileNameReceived:
+                    timer.Stop();
+                    StatusText.Text = "Логическое соединение установлено.";
+                    break;
+            }
+        }
+
+        private void ParseFileName(BinaryReader reader)
+        {
+            try
+            {
+                DataLink.SendPacket(new byte[] { (byte)MessageType.FileNameReceived });
+                sending = false;
+
+                var fileName = reader.ReadString();
+                var length = reader.ReadInt64();
+                var hash = reader.ReadBytes(64);
+
+                MessageBox.Show(fileName + ", " + length);
+                StatusText.Text = "Логическое соединение установлено.";
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show(er.Message);
+            }
         }
 
         private enum MessageType:byte
