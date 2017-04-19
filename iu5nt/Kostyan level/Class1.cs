@@ -22,6 +22,7 @@ namespace iu5nt.Kostyan_level
         static bool secondTrigger = false;
         static int firstTPosition;
         public delegate void RecieveMEthod(byte[] packet, bool check);
+        public static event RecieveMEthod onRecieve;
         public static void RecievePacket(byte[] recieved)
         {
             recievedPacket.AddRange(recieved);
@@ -64,6 +65,24 @@ namespace iu5nt.Kostyan_level
                 if ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE))
                 {
                     recievedPacket.RemoveAt(packLen - 2);
+                }
+            }
+            if (secondTrigger)
+            {
+                var exactPacket = recievedPacket.Take(firstTPosition + 1).ToArray();
+                var buffer = 0;
+                foreach (var packByte in exactPacket)
+                {
+                    buffer += packByte;
+                }
+                //Тут может быть ошибка по длине для проверки суммы
+                var checksummP = recievedPacket.Skip(firstTPosition + 2).Take(recievedPacket.Count - firstTPosition - 3).ToArray();
+                if (buffer == BitConverter.ToInt32(checksummP, 0))
+                {
+                    onRecieve(exactPacket, true);
+                } else
+                {
+                    onRecieve(exactPacket, false);
                 }
             }
         }
