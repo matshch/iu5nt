@@ -14,6 +14,7 @@ namespace iu5nt.Kostyan_level
     {
         static byte[] currentPacket;
         static byte[] checkSumm;
+        static byte[] fullPacket;
         static int length = 0;
         static int position = 0;
         public static void SendPacket(byte[] newPacket)
@@ -29,10 +30,30 @@ namespace iu5nt.Kostyan_level
             }
             checkSumm = BitConverter.GetBytes(summBuffer);
             length += checkSumm.Length;
-
+            List<byte> indexPacket = new List<byte>(currentPacket);
+            for (var i = 0; i < currentPacket.Length; i++ ){
+                var taken = currentPacket[i];
+                if(taken == 0xFF || taken == 0xFE){
+                    indexPacket.Insert(i,0xFE);
+                }
+            }
+            indexPacket.Add(0xFF);
+            List<byte> indexSumm = new List<byte>(checkSumm);
+            for (var i = 0; i < checkSumm.Length; i++ ){
+                var taken = checkSumm[i];
+                if(taken == 0xFF || taken == 0xFE){
+                    indexSumm.Insert(i,0xFE);
+                }
+            }
+            indexSumm.Add(0xFF);
+            indexPacket.AddRange(indexSumm);
+            BitArray bitPacket = new BitArray(indexPacket.ToArray());
+            
         }
 
     }
+
+
     public static class Physical
     {
         static SerialPort _serialPort;
@@ -71,7 +92,9 @@ namespace iu5nt.Kostyan_level
             bits.CopyTo(ret, 0);
             return ret;
         }
+        private static BitArray getCycled(BitArray eleven){
 
+        }
         private static void cycleCode(byte[] first, bool type)
         {
             byte[] second;
@@ -115,4 +138,5 @@ namespace iu5nt.Kostyan_level
         }
 
     }
-}
+
+ }
