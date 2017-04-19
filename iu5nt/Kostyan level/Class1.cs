@@ -17,6 +17,18 @@ namespace iu5nt.Kostyan_level
         static byte[] fullPacket;
         static int length = 0;
         static int position = 0;
+        static List<byte> recievedPacket;
+        static bool firstTrigger = false;
+        static bool secondTrigger = false;
+        public static void RecievePacket(byte[] recieved)
+        {
+            recievedPacket.AddRange(recieved);
+            var packLen = recievedPacket.Count;
+            if(packLen > 3)
+            {
+
+            }
+        }
         public static void SendPacket(byte[] newPacket)
         {
             length = 0;
@@ -33,19 +45,19 @@ namespace iu5nt.Kostyan_level
             List<byte> indexPacket = new List<byte>(currentPacket);
             for (var i = 0; i < currentPacket.Length; i++ ){
                 var taken = currentPacket[i];
-                if(taken == 0xFF || taken == 0xFE){
-                    indexPacket.Insert(i,0xFE);
+                if(taken == (byte)0xFF || taken == (byte)0xFE){
+                    indexPacket.Insert(i,(byte)0xFE);
                 }
             }
-            indexPacket.Add(0xFF);
+            indexPacket.Add((byte)0xFF);
             List<byte> indexSumm = new List<byte>(checkSumm);
             for (var i = 0; i < checkSumm.Length; i++ ){
                 var taken = checkSumm[i];
-                if(taken == 0xFF || taken == 0xFE){
-                    indexSumm.Insert(i,0xFE);
+                if(taken == (byte)0xFF || taken == (byte)0xFE){
+                    indexSumm.Insert(i,(byte)0xFE);
                 }
             }
-            indexSumm.Add(0xFF);
+            indexSumm.Add((byte)0xFF);
             indexPacket.AddRange(indexSumm);
             BitArray bitPacket = new BitArray(indexPacket.ToArray());
             
@@ -82,17 +94,42 @@ namespace iu5nt.Kostyan_level
                         SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            string indata = sp.ReadExisting();
+            while(sp.BytesToRead > 0)
+            {
+            }
             //TODO
         }
-
+        public static void Send(BitArray allBits)
+        {
+            var work = new bool[allBits.Count];
+            allBits.CopyTo(work, 0);
+            int iterate = (allBits.Count - 1) / 11 + 1;
+            for (var i = 0; i < iterate; i++)
+            {
+                var array = work.Skip(i * 11).Take(11).ToArray();
+                _serialPort.Write(getCycled(new BitArray(array)), 0, 2);
+            }
+        }
         private static byte[] BitArrayToByteArray(BitArray bits)
         {
             byte[] ret = new byte[(bits.Length - 1) / 8 + 1];
             bits.CopyTo(ret, 0);
             return ret;
         }
-        private static BitArray getCycled(BitArray eleven){
+        private static byte[] getCycled(BitArray eleven) {
+            int[] buffer = new int[1];
+            eleven.CopyTo(buffer, 0);
+            var qbite = buffer[0];
+            qbite *= 16;
+            var osn = 19;
+            while (qbite > 15)
+            {
+                var clone = osn;
+                clone = clone << ((int)Math.Log(qbite, 2));
+                qbite ^= clone;
+            }
+            byte[] result = BitConverter.GetBytes(buffer[0] * 16 + qbite);
+            return new byte[] { result[result.Length - 2], result[result.Length - 1] };
 
         }
         private static void cycleCode(byte[] first, bool type)
