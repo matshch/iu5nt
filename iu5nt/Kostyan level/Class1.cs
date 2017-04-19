@@ -90,7 +90,7 @@ namespace iu5nt.Kostyan_level
                 }
                 //Тут может быть ошибка по длине для проверки суммы
                 var checksummP = recievedPacket.Skip(firstTPosition + 2).Take(recievedPacket.Count - firstTPosition - 3).ToArray();
-                if (buffer == BitConverter.ToInt16(checksummP, 0))
+                if (buffer == BitConverter.ToUInt16(checksummP, 0))
                 {
                     onRecieve(exactPacket, true);
                 } else
@@ -177,7 +177,7 @@ namespace iu5nt.Kostyan_level
             SerialPort sp = (SerialPort)sender;
             while(sp.BytesToRead > 1)
             {
-                var byteBuffer = new byte[2];
+                var byteBuffer = new byte[4];
                 sp.Read(byteBuffer,0,2);
                 var dec = deCycle(byteBuffer);
                 DataLink.RecievePacket(dec);
@@ -273,9 +273,9 @@ namespace iu5nt.Kostyan_level
             return ret;
         }
         private static byte[] getCycled(BitArray eleven) {
-            UInt32[] buffer = new UInt32[1];
+            var buffer = new Int32[1];
             eleven.CopyTo(buffer, 0);
-            UInt32 qbite = buffer[0];
+            UInt32 qbite = (uint)buffer[0];
             qbite *= 16;
             UInt32 osn = 19;
             while (qbite > 15)
