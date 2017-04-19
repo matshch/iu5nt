@@ -1,20 +1,11 @@
 ﻿using iu5nt.Kostyan_level;
-using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Threading;
+using wf = System.Windows.Forms;
 
 namespace iu5nt
 {
@@ -23,7 +14,17 @@ namespace iu5nt
     /// </summary>
     public partial class MainWindow : Window
     {
-        private OpenFileDialog fileDialog = new OpenFileDialog();
+        private wf.OpenFileDialog fileDialog = new wf.OpenFileDialog();
+        private wf.FolderBrowserDialog folderDialog = new wf.FolderBrowserDialog();
+
+        private bool folderReady = false;
+        private bool sendReady = false;
+        private bool? sending = null;
+
+        private Stream fileStream;
+        private DispatcherTimer timer = new DispatcherTimer() {
+            Interval = new TimeSpan(0, 0, 1) // 1 second
+        };
 
         public MainWindow()
         {
@@ -78,11 +79,73 @@ namespace iu5nt
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             var result = fileDialog.ShowDialog();
-            if (result == true)
+            if (result == wf.DialogResult.OK)
             {
                 FileName.Text = fileDialog.FileName;
                 SendFile.IsEnabled = true;
+                sendReady = false;
+                sending = null;
             }
+        }
+
+        private void SelectDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            var result = folderDialog.ShowDialog();
+            if (result == wf.DialogResult.OK)
+            {
+                DirectoryName.Text = folderDialog.SelectedPath;
+                folderReady = true;
+                sending = null;
+                StatusText.Text = "Ожидаем логического соединения...";
+            }
+        }
+
+        private void SendFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                fileStream = fileDialog.OpenFile();
+                var hash = new SHA512CryptoServiceProvider().ComputeHash(fileStream);
+                fileStream.Seek(0, SeekOrigin.Begin);
+
+                var stream = new MemoryStream();
+                var writer = new BinaryWriter(stream);
+
+                writer.Write((byte)MessageType.FileName);
+                writer.Write(fileDialog.SafeFileName);
+                writer.Write(fileStream.Length);
+                writer.Write(hash); // 64 bytes for security
+
+                DataLink.SendPacket(stream.ToArray());
+                sending = true;
+                CloseButton.IsEnabled = false;
+                FileBox.IsEnabled = false;
+                DirectoryBox.IsEnabled = false;
+                StatusText.Text = "Установка логического соединения...";
+
+                timer.Tick += FileNameSending_Timeout;
+                timer.Start();
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show(er.Message);
+            }
+        }
+
+        private void FileNameSending_Timeout(object sender, EventArgs e)
+        {
+            CloseButton.IsEnabled = true;
+            FileBox.IsEnabled = true;
+            DirectoryBox.IsEnabled = true;
+            StatusText.Text = "Физическое соединение открыто.";
+            MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
+
+            timer.Tick -= FileNameSending_Timeout;
+        }
+
+        private enum MessageType:byte
+        {
+            FileName, FileNameReceived, FileRequest
         }
     }
 }
