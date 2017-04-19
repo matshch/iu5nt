@@ -1,20 +1,18 @@
 ﻿using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 
 // Общие сведения об этой сборке предоставляются следующим набором
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("iu5nt")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Локальная безадаптерная сеть")]
+[assembly: AssemblyDescription("Курсовая работа по курсу \"Сетевые технологии в АСОИУ\" кафедры ИУ5")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("iu5nt")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("МГТУ им. Н.Э.Баумана")]
+[assembly: AssemblyProduct("Локальная безадаптерная сеть")]
+[assembly: AssemblyCopyright("Copyright © Лещев Артем Олегович, Мельников Константин Игоревич, 2017")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 
 // Установка значения False для параметра ComVisible делает типы в этой сборке невидимыми
 // для компонентов COM. Если необходимо обратиться к типу в этой сборке через
@@ -28,7 +26,7 @@ using System.Windows;
 //атрибута NeutralResourceLanguage ниже.  Обновите "en-US" в
 //строка внизу для обеспечения соответствия настройки UICulture в файле проекта.
 
-//[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
+[assembly: NeutralResourcesLanguage("ru-RU")]
 
 
 [assembly: ThemeInfo(
@@ -53,3 +51,4 @@ using System.Windows;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
