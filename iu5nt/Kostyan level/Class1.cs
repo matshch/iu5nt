@@ -17,15 +17,28 @@ namespace iu5nt.Kostyan_level
         static byte[] fullPacket;
         static int length = 0;
         static int position = 0;
-        static List<byte> recievedPacket;
+        static List<byte> recievedPacket = new List<byte>();
+        static List<bool> recievedPacketBuffer = new List<bool>();
         static bool firstTrigger = false;
         static bool secondTrigger = false;
-        static int firstTPosition;
+        static int firstTPosition = 0;
         public delegate void RecieveMEthod(byte[] packet, bool check);
         public static event RecieveMEthod onRecieve;
-        public static void RecievePacket(byte[] recieved)
+        public static void RecievePacket(BitArray recievedBit)
         {
-            recievedPacket.AddRange(recieved);
+            bool[] bbuffer = new bool[11];
+            recievedBit.CopyTo(bbuffer, 0);
+            recievedPacketBuffer.AddRange(bbuffer);
+            if(recievedPacketBuffer.Count > 16)
+            {
+                bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,16).ToArray();
+                recievedPacketBuffer.RemoveRange(0, 16);
+                var bitBufff = new BitArray(seriousBuffer);
+                byte[] recieved = new byte[2];
+                bitBufff.CopyTo(recieved, 0);
+                recievedPacket.AddRange(recieved);
+            }
+
             var packLen = recievedPacket.Count;
             if(packLen > 3)
             {
@@ -62,7 +75,7 @@ namespace iu5nt.Kostyan_level
                 
             } else
             {
-                if ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE))
+                if (packLen > 2 && (recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE))
                 {
                     recievedPacket.RemoveAt(packLen - 2);
                 }
@@ -84,10 +97,20 @@ namespace iu5nt.Kostyan_level
                 {
                     onRecieve(exactPacket, false);
                 }
+                recievedPacket.Clear();
+                recievedPacketBuffer.Clear();      
+                firstTrigger = false;
+                secondTrigger = false;
+                firstTPosition = 0;
             }
         }
         public static void SendPacket(byte[] newPacket)
         {
+            recievedPacket.Clear();
+            firstTrigger = false;
+            secondTrigger = false;
+            firstTPosition = 0;
+            recievedPacketBuffer.Clear();
             length = 0;
             position = 0;
             currentPacket = newPacket;
@@ -117,7 +140,7 @@ namespace iu5nt.Kostyan_level
             indexSumm.Add((byte)0xFF);
             indexPacket.AddRange(indexSumm);
             BitArray bitPacket = new BitArray(indexPacket.ToArray());
-            
+            Physical.Send(bitPacket);
         }
 
     }
@@ -127,6 +150,7 @@ namespace iu5nt.Kostyan_level
     {
         static SerialPort _serialPort;
         public static bool connected = false;
+        public static List<int> failList = learning();
         public static void Connect(String portName)
         {
             if (connected)
@@ -151,10 +175,85 @@ namespace iu5nt.Kostyan_level
                         SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            while(sp.BytesToRead > 0)
+            while(sp.BytesToRead > 1)
             {
+                var byteBuffer = new byte[2];
+                sp.Read(byteBuffer,0,2);
+                var dec = deCycle(byteBuffer);
+                DataLink.RecievePacket(dec);
             }
             //TODO
+        }
+        static public List<int> learning()
+        {
+            var study = 16384;
+            int qbite = study;
+            var osn = 19;
+            while (qbite > 15)
+            {
+                var clone = osn;
+                clone = clone << ((int)Math.Log(qbite, 2));
+                qbite ^= clone;
+            }
+            study = study + qbite;
+            var getBuffed = new List<int>();
+            for (var i = 0; i < 15; i++)
+            {
+                var bits = BitConverter.GetBytes(study);
+                var beef = new BitArray(new byte[] { bits[0],bits[1]});
+                beef.Set(i, !beef.Get(i));
+                var number = new int[1];
+                beef.CopyTo(number, 0);
+                qbite = number[0];
+                while (qbite > 15)
+                {
+                    var clone = osn;
+                    clone = clone << ((int)Math.Log(qbite, 2));
+                    qbite ^= clone;
+                }
+                getBuffed.Add(qbite);
+            }
+            return getBuffed;
+        }
+        static BitArray deCycle(byte[] cycled)
+        {
+
+            var buffer = BitConverter.ToInt32(cycled,0);
+            int qbite = buffer;
+            var osn = 19;
+            while (qbite > 15)
+            {
+                var clone = osn;
+                clone = clone << ((int)Math.Log(qbite, 2));
+                qbite ^= clone;
+            }
+            if (qbite == 0)
+            {
+                var len = (int)Math.Log(buffer / 16, 2);
+                var convert = BitConverter.GetBytes(buffer / 16);
+                var bitar = new BitArray(convert);
+                bitar.Length = 11;
+                return bitar;
+            }
+            else
+            {
+                var indi = failList.IndexOf(qbite);
+                if(indi > 3)
+                {
+                    var convert = BitConverter.GetBytes(buffer / 16);
+                    var bitar = new BitArray(convert);
+                    bitar.Length = 11;
+                    bitar.Set(indi - 4, !bitar.Get(indi - 4));
+                    return bitar;
+                } else
+                {
+                    var convert = BitConverter.GetBytes(buffer / 16);
+                    var bitar = new BitArray(convert);
+                    bitar.Length = 11;
+                    return bitar;
+                }
+
+            }
         }
         public static void Send(BitArray allBits)
         {
@@ -186,7 +285,7 @@ namespace iu5nt.Kostyan_level
                 qbite ^= clone;
             }
             byte[] result = BitConverter.GetBytes(buffer[0] * 16 + qbite);
-            return new byte[] { result[result.Length - 2], result[result.Length - 1] };
+            return new byte[] { result[0], result[1] };
 
         }
        
