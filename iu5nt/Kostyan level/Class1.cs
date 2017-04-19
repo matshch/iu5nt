@@ -90,7 +90,7 @@ namespace iu5nt.Kostyan_level
                 }
                 //Тут может быть ошибка по длине для проверки суммы
                 var checksummP = recievedPacket.Skip(firstTPosition + 2).Take(recievedPacket.Count - firstTPosition - 3).ToArray();
-                if (buffer == BitConverter.ToInt32(checksummP, 0))
+                if (buffer == BitConverter.ToInt16(checksummP, 0))
                 {
                     onRecieve(exactPacket, true);
                 } else
@@ -218,7 +218,7 @@ namespace iu5nt.Kostyan_level
         static BitArray deCycle(byte[] cycled)
         {
 
-            var buffer = BitConverter.ToInt32(cycled,0);
+            var buffer = BitConverter.ToInt16(cycled,0);
             int qbite = buffer;
             var osn = 19;
             while (qbite > 15)
