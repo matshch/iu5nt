@@ -29,12 +29,12 @@ namespace iu5nt.Kostyan_level
             bool[] bbuffer = new bool[11];
             recievedBit.CopyTo(bbuffer, 0);
             recievedPacketBuffer.AddRange(bbuffer);
-            if(recievedPacketBuffer.Count > 16)
+            if(recievedPacketBuffer.Count > 8)
             {
-                bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,16).ToArray();
-                recievedPacketBuffer.RemoveRange(0, 16);
+                bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,8).ToArray();
+                recievedPacketBuffer.RemoveRange(0, 8);
                 var bitBufff = new BitArray(seriousBuffer);
-                byte[] recieved = new byte[2];
+                byte[] recieved = new byte[1];
                 bitBufff.CopyTo(recieved, 0);
                 recievedPacket.AddRange(recieved);
             }
