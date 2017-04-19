@@ -41,7 +41,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox x:Name="DirectoryName" IsReadOnly="True" Margin="3 4 0 6"/>
-                <Button x:Name="SelectDirectory" Content="Выбрать папку" Margin="7 4 2 6" MinWidth="94" MinHeight="23" Grid.Column="1"/>
+                <Button x:Name="SelectDirectory" Content="Выбрать папку" Margin="7 4 2 6" MinWidth="94" MinHeight="23" Grid.Column="1" Click="SelectDirectory_Click"/>
             </Grid>
         </GroupBox>
         <TextBlock x:Name="StatusText" Text="Соединение не установлено." TextWrapping="WrapWithOverflow" TextAlignment="Center" Margin="0" Grid.Row="3"/>

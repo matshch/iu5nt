@@ -1,5 +1,4 @@
 ﻿using iu5nt.Kostyan_level;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -10,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using wf = System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -23,7 +23,9 @@ namespace iu5nt
     /// </summary>
     public partial class MainWindow : Window
     {
-        private OpenFileDialog fileDialog = new OpenFileDialog();
+        private wf.OpenFileDialog fileDialog = new wf.OpenFileDialog();
+        private wf.FolderBrowserDialog folderDialog = new wf.FolderBrowserDialog();
+        private bool folderReady = false;
 
         public MainWindow()
         {
@@ -78,10 +80,21 @@ namespace iu5nt
         private void SelectFile_Click(object sender, RoutedEventArgs e)
         {
             var result = fileDialog.ShowDialog();
-            if (result == true)
+            if (result == wf.DialogResult.OK)
             {
                 FileName.Text = fileDialog.FileName;
                 SendFile.IsEnabled = true;
+            }
+        }
+
+        private void SelectDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            var result = folderDialog.ShowDialog();
+            if (result == wf.DialogResult.OK)
+            {
+                DirectoryName.Text = folderDialog.SelectedPath;
+                folderReady = true;
+                StatusText.Text = "Ожидаем логического соединения...";
             }
         }
     }
