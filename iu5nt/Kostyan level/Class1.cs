@@ -107,7 +107,7 @@ namespace iu5nt.Kostyan_level
     public static class Physical
     {
         static SerialPort _serialPort;
-        public static bool connected = true;
+        public static bool connected = false;
         public static void Connect(String portName)
         {
             if (connected)
