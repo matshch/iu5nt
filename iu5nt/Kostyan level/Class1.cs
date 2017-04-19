@@ -21,6 +21,8 @@ namespace iu5nt.Kostyan_level
         static bool firstTrigger = false;
         static bool secondTrigger = false;
         static int firstTPosition;
+        public delegate void RecieveMEthod(byte[] packet, bool check);
+        public event
         public static void RecievePacket(byte[] recieved)
         {
             recievedPacket.AddRange(recieved);
