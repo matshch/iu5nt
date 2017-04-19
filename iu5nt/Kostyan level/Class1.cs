@@ -202,9 +202,9 @@ namespace iu5nt.Kostyan_level
                 var bits = BitConverter.GetBytes(study);
                 var beef = new BitArray(new byte[] { bits[0],bits[1]});
                 beef.Set(i, !beef.Get(i));
-                var number = new UInt32[1];
+                var number = new Int32[1];
                 beef.CopyTo(number, 0);
-                qbite = number[0];
+                qbite = (uint)number[0];
                 while (qbite > 15)
                 {
                     var clone = osn;
