@@ -1,4 +1,5 @@
 ﻿using iu5nt.Kostyan_level;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -22,6 +23,8 @@ namespace iu5nt
     /// </summary>
     public partial class MainWindow : Window
     {
+        private OpenFileDialog fileDialog = new OpenFileDialog();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,6 +46,8 @@ namespace iu5nt
                     OpenButton.IsEnabled = false;
                     CloseButton.IsEnabled = true;
                     PortsList.IsEnabled = false;
+                    FileBox.IsEnabled = true;
+                    DirectoryBox.IsEnabled = true;
                     StatusText.Text = "Физическое соединение открыто.";
                 }
                 catch (Exception er)
@@ -60,11 +65,23 @@ namespace iu5nt
                 OpenButton.IsEnabled = true;
                 CloseButton.IsEnabled = false;
                 PortsList.IsEnabled = true;
+                FileBox.IsEnabled = false;
+                DirectoryBox.IsEnabled = false;
                 StatusText.Text = "Физическое соединение закрыто.";
             }
             catch (Exception er)
             {
                 MessageBox.Show(er.Message);
+            }
+        }
+
+        private void SelectFile_Click(object sender, RoutedEventArgs e)
+        {
+            var result = fileDialog.ShowDialog();
+            if (result == true)
+            {
+                FileName.Text = fileDialog.FileName;
+                SendFile.IsEnabled = true;
             }
         }
     }

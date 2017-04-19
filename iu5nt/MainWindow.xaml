@@ -30,8 +30,8 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox x:Name="FileName" IsReadOnly="True" Margin="3 4 0 6"/>
-                <Button x:Name="SelectFile" Content="Выбрать файл" Margin="7 4 0 6" MinWidth="94" MinHeight="23" Grid.Column="1"/>
-                <Button x:Name="SendFile" Content="Отправить файл" Margin="7 4 2 6" MinWidth="94" MinHeight="23" Grid.Column="2"/>
+                <Button x:Name="SelectFile" Content="Выбрать файл" Margin="7 4 0 6" MinWidth="94" MinHeight="23" Grid.Column="1" Click="SelectFile_Click"/>
+                <Button x:Name="SendFile" Content="Отправить файл" IsEnabled="False" Margin="7 4 2 6" MinWidth="94" MinHeight="23" Grid.Column="2"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Приём файла" x:Name="DirectoryBox" IsEnabled="False" Margin="9 0 9 3" Grid.Row="2">
