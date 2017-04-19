@@ -75,7 +75,7 @@ namespace iu5nt.Kostyan_level
                 
             } else
             {
-                if (packLen > 2 && (recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE))
+                if (packLen > 2 && ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE)))
                 {
                     recievedPacket.RemoveAt(packLen - 2);
                 }
