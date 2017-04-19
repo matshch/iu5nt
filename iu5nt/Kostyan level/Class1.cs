@@ -20,13 +20,50 @@ namespace iu5nt.Kostyan_level
         static List<byte> recievedPacket;
         static bool firstTrigger = false;
         static bool secondTrigger = false;
+        static int firstTPosition;
         public static void RecievePacket(byte[] recieved)
         {
             recievedPacket.AddRange(recieved);
             var packLen = recievedPacket.Count;
             if(packLen > 3)
             {
+                for(var k = 2; k>0; k--)
+                {
+                    if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                    {
+                        recievedPacket.RemoveAt(packLen - k - 1);
+                    }
+                    else
+                    {
+                        if (recievedPacket[packLen - k] == (byte)0xFF)
+                        {
+                            if (!firstTrigger)
+                            {
+                                firstTrigger = true;
+                                firstTPosition = packLen - k - 1;
+                            }
+                            else
+                            {
+                                secondTrigger = true;
+                            }
+                        }
+                        else
+                        {
+                            if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                            {
+                                recievedPacket.RemoveAt(packLen - k - 1);
+                            }
+                        }
 
+                    }
+                }
+                
+            } else
+            {
+                if ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE))
+                {
+                    recievedPacket.RemoveAt(packLen - 2);
+                }
             }
         }
         public static void SendPacket(byte[] newPacket)
@@ -132,47 +169,7 @@ namespace iu5nt.Kostyan_level
             return new byte[] { result[result.Length - 2], result[result.Length - 1] };
 
         }
-        private static void cycleCode(byte[] first, bool type)
-        {
-            byte[] second;
-            BitArray buffer = new BitArray(first);
-            if (type)
-            {
-                //Todo сделать чтобы работало для 2 байтов
-                BitArray smallBuffer = new BitArray(0);
-                smallBuffer.Length = 15;
-
-                BitArray bigBuffer = new BitArray(0);
-                bigBuffer.Length = 15;
-
-                for (var i = 0; i < 11; i++)
-                {
-                    smallBuffer.Set(i, buffer[i]);
-                }
-                for (var i = 11; i < 16; i++)
-                {
-                    bigBuffer.Set(i - 5, buffer[i]);
-                }
-                var smallOst = BitConverter.ToInt32(BitArrayToByteArray(smallBuffer),0);
-                var bigOst = BitConverter.ToInt32(BitArrayToByteArray(bigBuffer),0);
-                int polynome = 19;
-                while(smallOst > 15)
-                {
-                    var clonePoly = polynome;
-                    polynome = polynome << (Convert.ToString(smallOst,2).Length -4);
-                    smallOst = smallOst ^ polynome;
-                }
-                while (bigOst > 15)
-                {
-                    var clonePoly = polynome;
-                    polynome = polynome << (Convert.ToString(bigOst, 2).Length - 4);
-                    bigOst = bigOst ^ polynome;
-                }
-                second = BitConverter.GetBytes(smallOst).Skip(2).Concat(BitConverter.GetBytes(bigOst).Skip(2)).ToArray();
-
-            }
-            //return second;
-        }
+       
 
     }
 
