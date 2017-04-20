@@ -37,49 +37,49 @@ namespace iu5nt.Kostyan_level
                 byte[] recieved = new byte[1];
                 bitBufff.CopyTo(recieved, 0);
                 recievedPacket.AddRange(recieved);
-            }
 
-            var packLen = recievedPacket.Count;
-            if(packLen > 3)
-            {
-                for(var k = 2; k>0; k--)
+                var packLen = recievedPacket.Count;
+                if(packLen > 3)
                 {
-                    if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                    for(var k = 2; k>0; k--)
                     {
-                        recievedPacket.RemoveAt(packLen - k - 1);
-                        packLen--;
-                    }
-                    else
-                    {
-                        if (recievedPacket[packLen - k] == (byte)0xFF)
+                        if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
                         {
-                            if (!firstTrigger)
-                            {
-                                firstTrigger = true;
-                                firstTPosition = packLen - k - 1;
-                            }
-                            else
-                            {
-                                secondTrigger = true;
-                            }
+                            recievedPacket.RemoveAt(packLen - k - 1);
+                            packLen--;
                         }
                         else
                         {
-                            if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                            if (recievedPacket[packLen - k] == (byte)0xFF)
                             {
-                                recievedPacket.RemoveAt(packLen - k - 1);
-                                packLen--;
+                                if (!firstTrigger)
+                                {
+                                    firstTrigger = true;
+                                    firstTPosition = packLen - k - 1;
+                                }
+                                else
+                                {
+                                    secondTrigger = true;
+                                }
                             }
-                        }
+                            else
+                            {
+                                if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                                {
+                                    recievedPacket.RemoveAt(packLen - k - 1);
+                                    packLen--;
+                                }
+                            }
 
+                        }
                     }
-                }
                 
-            } else
-            {
-                if (packLen > 2 && ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE)))
+                } else
                 {
-                    recievedPacket.RemoveAt(packLen - 2);
+                    if (packLen > 2 && ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE)))
+                    {
+                        recievedPacket.RemoveAt(packLen - 2);
+                    }
                 }
             }
             if (secondTrigger)
@@ -194,7 +194,7 @@ namespace iu5nt.Kostyan_level
             while (qbite > 15)
             {
                 UInt32 clone = osn;
-                clone = clone << ((int)Math.Log(qbite, 2));
+                clone = clone << ((int)Math.Log(qbite, 2) - 4);
                 qbite ^= clone;
             }
             study = study + qbite;
@@ -210,7 +210,7 @@ namespace iu5nt.Kostyan_level
                 while (qbite > 15)
                 {
                     var clone = osn;
-                    clone = clone << ((int)Math.Log(qbite, 2));
+                    clone = clone << ((int)Math.Log(qbite, 2) - 4);
                     qbite ^= clone;
                 }
                 getBuffed.Add(qbite);
@@ -226,12 +226,11 @@ namespace iu5nt.Kostyan_level
             while (qbite > 15)
             {
                 UInt32 clone = osn;
-                clone = clone << ((int)Math.Log(qbite, 2));
+                clone = clone << ((int)Math.Log(qbite, 2) - 4);
                 qbite ^= clone;
             }
             if (qbite == 0)
             {
-                var len = (int)Math.Log(buffer / 16, 2);
                 var convert = BitConverter.GetBytes(buffer / 16);
                 var bitar = new BitArray(convert);
                 bitar.Length = 11;
@@ -283,7 +282,7 @@ namespace iu5nt.Kostyan_level
             while (qbite > 15)
             {
                 UInt32 clone = osn;
-                clone = clone << ((int)Math.Log(qbite, 2));
+                clone = clone << ((int)Math.Log(qbite, 2) - 4);
                 qbite ^= clone;
             }
             byte[] result = BitConverter.GetBytes(buffer[0] * 16 + qbite);

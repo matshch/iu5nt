@@ -23,7 +23,7 @@ namespace iu5nt
 
         private Stream fileStream;
         private DispatcherTimer timer = new DispatcherTimer() {
-            Interval = new TimeSpan(0, 0, 1) // 1 second
+            Interval = new TimeSpan(0, 0, 10) // 1 second
         };
 
         public MainWindow()
@@ -183,7 +183,7 @@ namespace iu5nt
                     hashName += b.ToString("x2");
                 }
 
-                //MessageBox.Show(fileName + ", " + length + ", " + hashName);
+                MessageBox.Show(fileName + ", " + length + ", " + hashName);
                 //StatusText.Text = "Логическое соединение установлено.";
             }
             catch (Exception er)
