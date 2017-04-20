@@ -43,7 +43,7 @@ namespace iu5nt.Kostyan_level
                 var packLen = recievedPacket.Count;
                 if(packLen > 3)
                 {
-                    for(var k = 2; k > 0 && packLen > 3; k--)
+                    for(var k = 1; k > 0 && packLen > 3; k--)
                     {
                         if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
                         {
