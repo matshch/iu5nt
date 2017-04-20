@@ -23,6 +23,7 @@ namespace iu5nt.Kostyan_level
         static bool firstTrigger = false;
         static bool secondTrigger = false;
         static int firstTPosition = 0;
+        static int counter = 4;
         public delegate void RecieveMEthod(byte[] packet, bool check);
         public static event RecieveMEthod onRecieve;
         public static void RecievePacket(BitArray recievedBit)
@@ -33,15 +34,19 @@ namespace iu5nt.Kostyan_level
             debugBuffer.AddRange(bbuffer);
             while (recievedPacketBuffer.Count > 8)
             {
+                
                 bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,8).ToArray();
                 recievedPacketBuffer.RemoveRange(0, 8);
                 var bitBufff = new BitArray(seriousBuffer);
                 byte[] recieved = new byte[1];
                 bitBufff.CopyTo(recieved, 0);
-                recievedPacket.AddRange(recieved);
+                if(firstTrigger || recieved[0] == 0xFF){
+                    recievedPacket.AddRange(recieved);
+                    firstTrigger = true;
+                }
 
                 var packLen = recievedPacket.Count;
-                if(packLen > 3)
+                if(packLen > 6)
                 {
                     for(var k = 2; k > 0 && packLen > 3; k--)
                     {
@@ -54,14 +59,10 @@ namespace iu5nt.Kostyan_level
                         {
                             if (recievedPacket[packLen - k] == (byte)0xFF)
                             {
-                                if (!firstTrigger)
-                                {
-                                    firstTrigger = true;
-                                    firstTPosition = packLen - k - 1;
-                                }
-                                else
+                                if (!secondTrigger)
                                 {
                                     secondTrigger = true;
+                                    firstTPosition = packLen - k - 1;
                                 }
                             }
                             else
@@ -76,12 +77,6 @@ namespace iu5nt.Kostyan_level
                         }
                     }
                 
-                } else
-                {
-                    if (packLen > 2 && ((recievedPacket[packLen - 1] == (byte)0xFF && recievedPacket[packLen - 2] == (byte)0xFE) || (recievedPacket[packLen - 1] == (byte)0xFE && recievedPacket[packLen - 2] == (byte)0xFE)))
-                    {
-                        recievedPacket.RemoveAt(packLen - 2);
-                    }
                 }
             }
             if (secondTrigger)
@@ -93,7 +88,7 @@ namespace iu5nt.Kostyan_level
                     buffer += packByte;
                 }
                 //Тут может быть ошибка по длине для проверки суммы
-                var checksummP = recievedPacket.Skip(firstTPosition + 2).Take(recievedPacket.Count - firstTPosition - 3).ToArray();
+                var checksummP = recievedPacket.Skip(1).Take(4).ToArray();
                 if (buffer == BitConverter.ToUInt16(checksummP, 0))
                 {
                     onRecieve(exactPacket, true);
@@ -135,15 +130,9 @@ namespace iu5nt.Kostyan_level
             }
             indexPacket.Add((byte)0xFF);
             List<byte> indexSumm = new List<byte>(checkSumm);
-            for (var i = 0; i < checkSumm.Length; i++ ){
-                var taken = checkSumm[i];
-                if(taken == (byte)0xFF || taken == (byte)0xFE){
-                    indexSumm.Insert(i,(byte)0xFE);
-                }
-            }
-            indexSumm.Add((byte)0xFF);
-            indexPacket.AddRange(indexSumm);
-            BitArray bitPacket = new BitArray(indexPacket.ToArray());
+            indexSumm.AddRange(indexPacket);
+            indexSumm.Insert(0,0xFF);
+            BitArray bitPacket = new BitArray(indexSumm.ToArray());
             Physical.Send(bitPacket);
         }
 
