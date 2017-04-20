@@ -42,8 +42,8 @@ namespace iu5nt
             }
             else
             {
-                try
-                {
+                //try
+                //{
                     Physical.Connect((string)port);
                     OpenButton.IsEnabled = false;
                     CloseButton.IsEnabled = true;
@@ -51,11 +51,11 @@ namespace iu5nt
                     FileBox.IsEnabled = true;
                     DirectoryBox.IsEnabled = true;
                     StatusText.Text = "Физическое соединение открыто.";
-                }
-                catch (Exception er)
-                {
-                    MessageBox.Show(er.Message);
-                }
+                //}
+                //catch (Exception er)
+                //{
+                //    MessageBox.Show(er.Message);
+                //}
             }
         }
 
@@ -177,8 +177,14 @@ namespace iu5nt
                 var length = reader.ReadInt64();
                 var hash = reader.ReadBytes(64);
 
-                MessageBox.Show(fileName + ", " + length);
-                StatusText.Text = "Логическое соединение установлено.";
+                var hashName = "";
+                foreach (var b in hash)
+                {
+                    hashName += b.ToString("x2");
+                }
+
+                //MessageBox.Show(fileName + ", " + length + ", " + hashName);
+                //StatusText.Text = "Логическое соединение установлено.";
             }
             catch (Exception er)
             {

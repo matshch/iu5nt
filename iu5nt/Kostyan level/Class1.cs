@@ -29,7 +29,7 @@ namespace iu5nt.Kostyan_level
             bool[] bbuffer = new bool[11];
             recievedBit.CopyTo(bbuffer, 0);
             recievedPacketBuffer.AddRange(bbuffer);
-            if(recievedPacketBuffer.Count > 8)
+            while(recievedPacketBuffer.Count > 8)
             {
                 bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,8).ToArray();
                 recievedPacketBuffer.RemoveRange(0, 8);
@@ -47,6 +47,7 @@ namespace iu5nt.Kostyan_level
                     if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
                     {
                         recievedPacket.RemoveAt(packLen - k - 1);
+                        packLen--;
                     }
                     else
                     {
@@ -67,6 +68,7 @@ namespace iu5nt.Kostyan_level
                             if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE)
                             {
                                 recievedPacket.RemoveAt(packLen - k - 1);
+                                packLen--;
                             }
                         }
 
