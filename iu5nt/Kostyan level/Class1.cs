@@ -81,7 +81,7 @@ namespace iu5nt.Kostyan_level
             }
             if (secondTrigger)
             {
-                var exactPacket = recievedPacket.Take(firstTPosition + 1).ToArray();
+                var exactPacket = recievedPacket.Skip(5).Take(firstTPosition - 4).ToArray();
                 var buffer = 0;
                 foreach (var packByte in exactPacket)
                 {
