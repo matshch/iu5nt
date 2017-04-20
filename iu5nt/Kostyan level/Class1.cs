@@ -19,6 +19,7 @@ namespace iu5nt.Kostyan_level
         static int position = 0;
         static List<byte> recievedPacket = new List<byte>();
         static List<bool> recievedPacketBuffer = new List<bool>();
+        static List<bool> debugBuffer = new List<bool>();
         static bool firstTrigger = false;
         static bool secondTrigger = false;
         static int firstTPosition = 0;
@@ -29,7 +30,8 @@ namespace iu5nt.Kostyan_level
             bool[] bbuffer = new bool[11];
             recievedBit.CopyTo(bbuffer, 0);
             recievedPacketBuffer.AddRange(bbuffer);
-            while(recievedPacketBuffer.Count > 8)
+            debugBuffer.AddRange(bbuffer);
+            while (recievedPacketBuffer.Count > 8)
             {
                 bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,8).ToArray();
                 recievedPacketBuffer.RemoveRange(0, 8);
@@ -41,7 +43,7 @@ namespace iu5nt.Kostyan_level
                 var packLen = recievedPacket.Count;
                 if(packLen > 3)
                 {
-                    for(var k = 2; k>0; k--)
+                    for(var k = 2; k > 0 && packLen > 3; k--)
                     {
                         if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
                         {
@@ -176,11 +178,12 @@ namespace iu5nt.Kostyan_level
                         object sender,
                         SerialDataReceivedEventArgs e)
         {
-            SerialPort sp = (SerialPort)sender;
-            while(sp.BytesToRead > 1)
+            var i = 0;
+            while(_serialPort.BytesToRead > 1)
             {
+                i++;
                 var byteBuffer = new byte[4];
-                sp.Read(byteBuffer,0,2);
+                _serialPort.Read(byteBuffer,0,2);
                 var dec = deCycle(byteBuffer);
                 DataLink.RecievePacket(dec);
             }
