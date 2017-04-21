@@ -135,18 +135,17 @@ namespace iu5nt
 
         private void FileNameSending_Timeout(object sender, EventArgs e)
         {
+            timer.Tick -= FileNameSending_Timeout;
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
             StatusText.Text = "Физическое соединение открыто.";
             MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
-
-            timer.Tick -= FileNameSending_Timeout;
         }
 
         private void InvokeHandler(byte[] packet, bool check)
         {
-            Dispatcher.Invoke(() => { ReceiveMessage(packet, check); }, DispatcherPriority.Send);
+            Dispatcher.Invoke(new DataLink.RecieveMEthod(ReceiveMessage), DispatcherPriority.Send, packet, check);
         }
         
         private void ReceiveMessage(byte[] packet, bool check)
@@ -187,8 +186,8 @@ namespace iu5nt
         {
             if (!folderReady)
             {
-                MessageBox.Show("Необходимо выбрать папку для приёма файла.");
                 DataLink.SendPacket(new byte[] { (byte)MessageType.ReceiveNotReady });
+                MessageBox.Show("Необходимо выбрать папку для приёма файла.");
                 return;
             }
             try
@@ -206,8 +205,8 @@ namespace iu5nt
                     hashName += b.ToString("x2");
                 }
 
-                MessageBox.Show(fileName + ", " + length + ", " + hashName);
                 StatusText.Text = "Логическое соединение установлено.";
+                MessageBox.Show(fileName + ", " + length + ", " + hashName);
             }
             catch (Exception er)
             {
