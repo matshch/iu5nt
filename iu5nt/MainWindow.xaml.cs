@@ -167,12 +167,16 @@ namespace iu5nt
                     timer.Stop();
                     timer.Tick -= FileNameSending_Timeout;
                     sendReady = true;
+                    DisconnectButton.IsEnabled = true;
                     StatusText.Text = "Логическое соединение установлено.";
                     break;
                 case MessageType.ReceiveNotReady:
                     timer.Stop();
                     timer.Tick -= FileNameSending_Timeout;
                     sendReady = false;
+                    CloseButton.IsEnabled = true;
+                    FileBox.IsEnabled = true;
+                    DirectoryBox.IsEnabled = true;
                     StatusText.Text = "Физическое соединение открыто.";
                     MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
                     break;
@@ -205,6 +209,10 @@ namespace iu5nt
                     hashName += b.ToString("x2");
                 }
 
+                DisconnectButton.IsEnabled = true;
+                CloseButton.IsEnabled = false;
+                FileBox.IsEnabled = false;
+                DirectoryBox.IsEnabled = false;
                 StatusText.Text = "Логическое соединение установлено.";
                 MessageBox.Show(fileName + ", " + length + ", " + hashName);
             }
