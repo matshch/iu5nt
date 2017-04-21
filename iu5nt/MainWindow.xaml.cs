@@ -23,14 +23,14 @@ namespace iu5nt
 
         private Stream fileStream;
         private DispatcherTimer timer = new DispatcherTimer() {
-            Interval = new TimeSpan(0, 0, 10) // 1 second
+            Interval = new TimeSpan(0, 0, 5) // 5 second
         };
 
         public MainWindow()
         {
             InitializeComponent();
             PortsList.ItemsSource = SerialPort.GetPortNames();
-            DataLink.onRecieve += ReceiveMessage;
+            DataLink.onRecieve += InvokeHandler;
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
@@ -42,8 +42,8 @@ namespace iu5nt
             }
             else
             {
-                //try
-                //{
+                try
+                {
                     Physical.Connect((string)port);
                     OpenButton.IsEnabled = false;
                     CloseButton.IsEnabled = true;
@@ -51,11 +51,11 @@ namespace iu5nt
                     FileBox.IsEnabled = true;
                     DirectoryBox.IsEnabled = true;
                     StatusText.Text = "Физическое соединение открыто.";
-                //}
-                //catch (Exception er)
-                //{
-                //    MessageBox.Show(er.Message);
-                //}
+                }
+                catch (Exception er)
+                {
+                    MessageBox.Show(er.Message);
+                }
             }
         }
 
@@ -144,6 +144,11 @@ namespace iu5nt
             timer.Tick -= FileNameSending_Timeout;
         }
 
+        private void InvokeHandler(byte[] packet, bool check)
+        {
+            Dispatcher.Invoke(() => { ReceiveMessage(packet, check); }, DispatcherPriority.Send);
+        }
+        
         private void ReceiveMessage(byte[] packet, bool check)
         {
             if (!check)
@@ -161,13 +166,31 @@ namespace iu5nt
                     break;
                 case MessageType.FileNameReceived:
                     timer.Stop();
+                    timer.Tick -= FileNameSending_Timeout;
+                    sendReady = true;
                     StatusText.Text = "Логическое соединение установлено.";
+                    break;
+                case MessageType.ReceiveNotReady:
+                    timer.Stop();
+                    timer.Tick -= FileNameSending_Timeout;
+                    sendReady = false;
+                    StatusText.Text = "Физическое соединение открыто.";
+                    MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
+                    break;
+                default:
+                    MessageBox.Show("Получен повреждённый пакет.");
                     break;
             }
         }
 
         private void ParseFileName(BinaryReader reader)
         {
+            if (!folderReady)
+            {
+                MessageBox.Show("Необходимо выбрать папку для приёма файла.");
+                DataLink.SendPacket(new byte[] { (byte)MessageType.ReceiveNotReady });
+                return;
+            }
             try
             {
                 DataLink.SendPacket(new byte[] { (byte)MessageType.FileNameReceived });
@@ -184,7 +207,7 @@ namespace iu5nt
                 }
 
                 MessageBox.Show(fileName + ", " + length + ", " + hashName);
-                //StatusText.Text = "Логическое соединение установлено.";
+                StatusText.Text = "Логическое соединение установлено.";
             }
             catch (Exception er)
             {
@@ -194,7 +217,7 @@ namespace iu5nt
 
         private enum MessageType:byte
         {
-            FileName, FileNameReceived, FileRequest
+            FileName, FileNameReceived, ReceiveNotReady, FileRequest
         }
     }
 }
