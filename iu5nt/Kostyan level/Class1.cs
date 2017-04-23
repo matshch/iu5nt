@@ -32,7 +32,7 @@ namespace iu5nt.Kostyan_level
             recievedBit.CopyTo(bbuffer, 0);
             recievedPacketBuffer.AddRange(bbuffer);
             debugBuffer.AddRange(bbuffer);
-            while (recievedPacketBuffer.Count > 8)
+            while (recievedPacketBuffer.Count >= 8)
             {
                 
                 bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,8).ToArray();
