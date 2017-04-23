@@ -18,18 +18,24 @@ namespace iu5nt
         private wf.FolderBrowserDialog folderDialog = new wf.FolderBrowserDialog();
 
         private bool folderReady = false;
-        private bool sendReady = false;
         private bool? sending = null;
-
         private Stream fileStream;
+        private string fileName, hashName, filePath, tempPath;
+        private long length;
+        private const short chunkSize = 64;
+
         private DispatcherTimer timer = new DispatcherTimer() {
-            Interval = new TimeSpan(0, 0, 5) // 5 second
+            Interval = new TimeSpan(0, 0, 100) // 1 second
         };
+        private ushort retries = 0;
+        private const ushort maxRetries = 3;
+        private byte[] lastPacket;
 
         public MainWindow()
         {
             InitializeComponent();
             PortsList.ItemsSource = SerialPort.GetPortNames();
+            timer.Tick += ResendPacket;
             DataLink.onRecieve += InvokeHandler;
         }
 
@@ -84,7 +90,6 @@ namespace iu5nt
             {
                 FileName.Text = fileDialog.FileName;
                 SendFile.IsEnabled = true;
-                sendReady = false;
                 sending = null;
             }
         }
@@ -117,30 +122,18 @@ namespace iu5nt
                 writer.Write(fileStream.Length);
                 writer.Write(hash); // 64 bytes for security
 
-                DataLink.SendPacket(stream.ToArray());
                 sending = true;
                 CloseButton.IsEnabled = false;
                 FileBox.IsEnabled = false;
                 DirectoryBox.IsEnabled = false;
                 StatusText.Text = "Установка логического соединения...";
-
-                timer.Tick += FileNameSending_Timeout;
-                timer.Start();
+                Title = "Отправляем " + fileDialog.SafeFileName;
+                SendPacket(stream.ToArray());
             }
             catch (Exception er)
             {
                 MessageBox.Show(er.Message);
             }
-        }
-
-        private void FileNameSending_Timeout(object sender, EventArgs e)
-        {
-            timer.Tick -= FileNameSending_Timeout;
-            CloseButton.IsEnabled = true;
-            FileBox.IsEnabled = true;
-            DirectoryBox.IsEnabled = true;
-            StatusText.Text = "Физическое соединение открыто.";
-            MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
         }
 
         private void InvokeHandler(byte[] packet, bool check)
@@ -163,25 +156,33 @@ namespace iu5nt
                 case MessageType.FileName:
                     ParseFileName(reader);
                     break;
-                case MessageType.FileNameReceived:
-                    timer.Stop();
-                    timer.Tick -= FileNameSending_Timeout;
-                    sendReady = true;
-                    DisconnectButton.IsEnabled = true;
-                    StatusText.Text = "Логическое соединение установлено.";
-                    break;
                 case MessageType.ReceiveNotReady:
                     timer.Stop();
-                    timer.Tick -= FileNameSending_Timeout;
-                    sendReady = false;
                     CloseButton.IsEnabled = true;
                     FileBox.IsEnabled = true;
                     DirectoryBox.IsEnabled = true;
                     StatusText.Text = "Физическое соединение открыто.";
                     MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
                     break;
+                case MessageType.FileRequest:
+                    SendFileChunk(reader);
+                    break;
+                case MessageType.FileChunk:
+                    SaveFileChunk(reader);
+                    break;
+                case MessageType.Disconnect:
+                    timer.Stop();
+                    sending = null;
+                    CloseButton.IsEnabled = true;
+                    FileBox.IsEnabled = true;
+                    DirectoryBox.IsEnabled = true;
+                    DisconnectButton.IsEnabled = false;
+                    StatusText.Text = "Логическое соединение разорвано.";
+                    Title = "Локальная безадаптерная сеть";
+                    MessageBox.Show("Логическое соединение разорвано.");
+                    break;
                 default:
-                    MessageBox.Show("Получен повреждённый пакет.");
+                    MessageBox.Show("Получен неизвестный пакет.");
                     break;
             }
         }
@@ -190,31 +191,38 @@ namespace iu5nt
         {
             if (!folderReady)
             {
-                DataLink.SendPacket(new byte[] { (byte)MessageType.ReceiveNotReady });
+                SendPacket(new byte[] { (byte)MessageType.ReceiveNotReady });
+                timer.Stop();
                 MessageBox.Show("Необходимо выбрать папку для приёма файла.");
                 return;
             }
             try
             {
-                DataLink.SendPacket(new byte[] { (byte)MessageType.FileNameReceived });
-                sending = false;
-
-                var fileName = reader.ReadString();
-                var length = reader.ReadInt64();
+                fileName = reader.ReadString();
+                length = reader.ReadInt64();
                 var hash = reader.ReadBytes(64);
 
-                var hashName = "";
+                hashName = "";
                 foreach (var b in hash)
                 {
                     hashName += b.ToString("x2");
                 }
+
+                tempPath = Path.Combine(folderDialog.SelectedPath, hashName);
+                filePath = Path.Combine(folderDialog.SelectedPath, fileName);
+
+                fileStream = File.OpenWrite(tempPath);
+                fileStream.Seek(0, SeekOrigin.End);
 
                 DisconnectButton.IsEnabled = true;
                 CloseButton.IsEnabled = false;
                 FileBox.IsEnabled = false;
                 DirectoryBox.IsEnabled = false;
                 StatusText.Text = "Логическое соединение установлено.";
-                MessageBox.Show(fileName + ", " + length + ", " + hashName);
+                Title = "Принимаем " + fileName;
+                sending = false;
+
+                RequestFileChunk();
             }
             catch (Exception er)
             {
@@ -222,9 +230,133 @@ namespace iu5nt
             }
         }
 
+        private void RequestFileChunk()
+        {
+            if (fileStream.Length < length)
+            {
+                var stream = new MemoryStream();
+                var writer = new BinaryWriter(stream);
+
+                writer.Write((byte)MessageType.FileRequest);
+                writer.Write(fileStream.Length);
+                SendPacket(stream.ToArray());
+            }
+            else
+            {
+                fileStream.Close();
+                File.Delete(filePath);
+                File.Move(tempPath, filePath);
+                SendPacket(new byte[] { (byte)MessageType.FileReceived });
+            }
+        }
+
+        private void SendFileChunk(BinaryReader reader)
+        {
+            if (sending != true)
+            {
+                MessageBox.Show("Получен повреждённый пакет.");
+                return;
+            }
+
+            timer.Stop();
+
+            DisconnectButton.IsEnabled = true;
+            StatusText.Text = "Логическое соединение установлено.";
+
+            var allLength = fileStream.Length;
+            var position = reader.ReadInt64();
+            ProgressBar.Value = (double)position / allLength;
+
+            var stream = new MemoryStream();
+            var writer = new BinaryWriter(stream);
+
+            writer.Write((byte)MessageType.FileChunk);
+
+            var remaining = fileStream.Length - position;
+            if (remaining < chunkSize)
+            {
+                writer.Write(position);
+                writer.Write((short)remaining);
+                var buffer = new byte[remaining];
+                fileStream.Read(buffer, 0, (int)remaining);
+                writer.Write(buffer);
+            }
+            else
+            {
+                writer.Write(position);
+                writer.Write(chunkSize);
+                var buffer = new byte[chunkSize];
+                fileStream.Read(buffer, 0, chunkSize);
+                writer.Write(buffer);
+            }
+
+            SendPacket(stream.ToArray());
+        }
+
+        private void SaveFileChunk(BinaryReader reader)
+        {
+            if (sending != false)
+            {
+                MessageBox.Show("Получен повреждённый пакет.");
+                return;
+            }
+
+            timer.Stop();
+
+            var position = reader.ReadInt64();
+            var chunk = reader.ReadInt16();
+            var buffer = reader.ReadBytes(chunk);
+
+            fileStream.Seek(position, SeekOrigin.Begin);
+            fileStream.Write(buffer, 0, chunk);
+            
+            ProgressBar.Value = (double)(position + chunk) / length;
+
+            RequestFileChunk();
+        }
+
+        private void SendPacket(byte[] packet)
+        {
+            lastPacket = packet;
+            retries = 0;
+            DataLink.SendPacket(packet);
+            timer.Start();
+        }
+
+        private void ResendPacket(object sender, EventArgs e)
+        {
+            if (retries++ < maxRetries)
+            {
+                DataLink.SendPacket(lastPacket);
+                return;
+            }
+
+            CloseButton.IsEnabled = true;
+            FileBox.IsEnabled = true;
+            DirectoryBox.IsEnabled = true;
+            DisconnectButton.IsEnabled = true;
+            if (fileStream != null)
+            {
+                fileStream.Close();
+            }
+
+            if (sending == true && fileStream.Position == 0)
+            {
+                StatusText.Text = "Физическое соединение открыто.";
+                MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
+            }
+            else
+            {
+                StatusText.Text = "Логическое соединение потеряно.";
+                MessageBox.Show("Логическое соединение потеряно.");
+            }
+            SendPacket(new byte[] { (byte)MessageType.Disconnect });
+            timer.Stop();
+        }
+
         private enum MessageType:byte
         {
-            FileName, FileNameReceived, ReceiveNotReady, FileRequest
+            FileName, ReceiveNotReady, FileRequest, FileChunk, FileReceived, Disconnect
         }
     }
 }
