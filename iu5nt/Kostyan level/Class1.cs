@@ -89,7 +89,7 @@ namespace iu5nt.Kostyan_level
                 }
                 //Тут может быть ошибка по длине для проверки суммы
                 var checksummP = recievedPacket.Skip(1).Take(4).ToArray();
-                if (buffer == BitConverter.ToUInt16(checksummP, 0))
+                if (buffer == BitConverter.ToUInt32(checksummP, 0))
                 {
                     onRecieve(exactPacket, true);
                 } else

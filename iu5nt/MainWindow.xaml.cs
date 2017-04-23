@@ -22,7 +22,7 @@ namespace iu5nt
         private Stream fileStream;
         private string fileName, hashName, filePath, tempPath;
         private long length;
-        private const short chunkSize = 64;
+        private const short chunkSize = 512;
 
         private DispatcherTimer timer = new DispatcherTimer() {
             Interval = new TimeSpan(0, 0, 100) // 1 second
