@@ -150,6 +150,7 @@ namespace iu5nt
                     SaveFileChunk(reader);
                     break;
                 case MessageType.FileReceived:
+                    timer.Stop();
                     sending = null;
                     CloseButton.IsEnabled = true;
                     FileBox.IsEnabled = true;
@@ -162,6 +163,7 @@ namespace iu5nt
                     break;
                 case MessageType.FileReceivedOk:
                     if (sending == null) break;
+                    timer.Stop();
                     sending = null;
                     CloseButton.IsEnabled = true;
                     FileBox.IsEnabled = true;
@@ -332,7 +334,6 @@ namespace iu5nt
                 return;
             }
 
-            sending = null;
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
@@ -352,8 +353,8 @@ namespace iu5nt
                 StatusText.Text = "Логическое соединение потеряно.";
                 MessageBox.Show("Логическое соединение потеряно.");
             }
+            sending = null;
             SendPacket(new byte[] { (byte)MessageType.Disconnect });
-            timer.Stop();
         }
 
         private void PortCheck(bool DSR, bool CTS)
