@@ -119,6 +119,7 @@ namespace iu5nt
             DirectoryBox.IsEnabled = false;
             StatusText.Text = "Установка логического соединения...";
             Title = "Отправляем " + fileDialog.SafeFileName;
+            Physical.SetRts(true);
             SendPacket(stream.ToArray());
         }
 
@@ -184,6 +185,7 @@ namespace iu5nt
                     Title = "Локальная безадаптерная сеть";
                     ProgressBar.Value = 1;
                     SendPacket(new byte[] { (byte)MessageType.FileReceivedOk });
+                    Physical.SetRts(false);
                     break;
                 case MessageType.FileReceivedOk:
                     if (sending == null) break;
