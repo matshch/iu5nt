@@ -31,7 +31,7 @@ namespace iu5nt.Kostyan_level
         public static event RecieveMEthod onRecieve;
 
         static DataLink(){
-            cleanerTimer.Elapsed += TimerListener;
+            cleanerTimer.Elapsed += new ElapsedEventHandler(TimerListener);
         }
         static void TimerListener(object sender,    ElapsedEventArgs e){
             if(firstTrigger){
@@ -188,7 +188,9 @@ namespace iu5nt.Kostyan_level
             _serialPort.RtsEnable = true;
             _serialPort.ReceivedBytesThreshold = 2;
             _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            _serialPort.PinChanged += new SerialPinChangedEventHandler(StatusCheck);
             _serialPort.Open();
+            onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding);
             connected = true;
         }
         public static void Disconnect()
