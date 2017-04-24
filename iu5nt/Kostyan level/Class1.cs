@@ -170,7 +170,7 @@ namespace iu5nt.Kostyan_level
         public static bool connected = false;
         public static List<UInt32> failList = learning();
         public delegate void PortCheck(bool DSR, bool CTS);
-        public delegate void PortListener(bool DSR, bool CTS);
+        public delegate void PortListener(bool DSR, bool CTS, bool DTR, bool RTS);
         public static event PortCheck onCheck;
         public static event PortListener UICheck;
         public static void SetRts(bool setter)
@@ -178,7 +178,7 @@ namespace iu5nt.Kostyan_level
             _serialPort.RtsEnable = setter;
         }
         static void StatusCheck (Object sender, SerialPinChangedEventArgs e){
-            UICheck(_serialPort.DsrHolding, _serialPort.CtsHolding);
+            UICheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
         }
         public static void Connect(String portName)
         {
