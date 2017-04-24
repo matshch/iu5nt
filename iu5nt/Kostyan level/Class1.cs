@@ -156,6 +156,7 @@ namespace iu5nt.Kostyan_level
                 Disconnect();
             }
             _serialPort = new SerialPort(portName);
+            _serialPort.BaudRate = 115200;
             _serialPort.DtrEnable = true;
             _serialPort.RtsEnable = true;
             _serialPort.ReceivedBytesThreshold = 2;
