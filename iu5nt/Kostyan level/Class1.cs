@@ -173,6 +173,10 @@ namespace iu5nt.Kostyan_level
         public delegate void PortListener(SerialPinChange changed);
         public static event PortCheck onCheck;
         public static event PortListener UICheck;
+        public static void SetRts(bool setter)
+        {
+            _serialPort.RtsEnable = setter;
+        }
         static void StatusCheck (Object sender, SerialPinChangedEventArgs e){
             UICheck(e.EventType);
         }
@@ -185,7 +189,6 @@ namespace iu5nt.Kostyan_level
             _serialPort = new SerialPort(portName);
             _serialPort.BaudRate = 115200;
             _serialPort.DtrEnable = true;
-            _serialPort.RtsEnable = true;
             _serialPort.ReceivedBytesThreshold = 2;
             _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
             _serialPort.PinChanged += new SerialPinChangedEventHandler(StatusCheck);
