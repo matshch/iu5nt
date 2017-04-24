@@ -101,6 +101,12 @@ namespace iu5nt
 
         private void SendFile_Click(object sender, RoutedEventArgs e)
         {
+            if (CtsIndicator.IsChecked != true || DsrIndicator.IsChecked != true)
+            {
+                MessageBox.Show("Принимающая сторона не готова к логическому соединению.");
+                return;
+            }
+
             fileStream = fileDialog.OpenFile();
             var hash = new SHA512CryptoServiceProvider().ComputeHash(fileStream);
             fileStream.Seek(0, SeekOrigin.Begin);
