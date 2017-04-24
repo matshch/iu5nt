@@ -9,9 +9,6 @@ using wf = System.Windows.Forms;
 
 namespace iu5nt
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private wf.OpenFileDialog fileDialog = new wf.OpenFileDialog();
@@ -25,7 +22,7 @@ namespace iu5nt
         private const short chunkSize = 512;
 
         private DispatcherTimer timer = new DispatcherTimer() {
-            Interval = new TimeSpan(0, 0, 1) // 1 second
+            Interval = new TimeSpan(0, 0, 2) // 2 seconds
         };
         private ushort retries = 0;
         private const ushort maxRetries = 3;
@@ -37,6 +34,9 @@ namespace iu5nt
             PortsList.ItemsSource = SerialPort.GetPortNames();
             timer.Tick += ResendPacket;
             DataLink.onRecieve += InvokeHandler;
+            Physical.onCheck += PortCheck;
+            Physical.UICheck += PortCheck;
+            Dispatcher.UnhandledException += ExceptionHandler;
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
@@ -48,39 +48,25 @@ namespace iu5nt
             }
             else
             {
-                try
-                {
-                    Physical.Connect((string)port);
-                    OpenButton.IsEnabled = false;
-                    CloseButton.IsEnabled = true;
-                    PortsList.IsEnabled = false;
-                    FileBox.IsEnabled = true;
-                    DirectoryBox.IsEnabled = true;
-                    StatusText.Text = "Физическое соединение открыто.";
-                }
-                catch (Exception er)
-                {
-                    MessageBox.Show(er.Message);
-                }
+                Physical.Connect((string)port);
+                OpenButton.IsEnabled = false;
+                CloseButton.IsEnabled = true;
+                PortsList.IsEnabled = false;
+                FileBox.IsEnabled = true;
+                DirectoryBox.IsEnabled = true;
+                StatusText.Text = "Физическое соединение открыто.";
             }
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Physical.Disconnect();
-                OpenButton.IsEnabled = true;
-                CloseButton.IsEnabled = false;
-                PortsList.IsEnabled = true;
-                FileBox.IsEnabled = false;
-                DirectoryBox.IsEnabled = false;
-                StatusText.Text = "Физическое соединение закрыто.";
-            }
-            catch (Exception er)
-            {
-                MessageBox.Show(er.Message);
-            }
+            Physical.Disconnect();
+            OpenButton.IsEnabled = true;
+            CloseButton.IsEnabled = false;
+            PortsList.IsEnabled = true;
+            FileBox.IsEnabled = false;
+            DirectoryBox.IsEnabled = false;
+            StatusText.Text = "Физическое соединение закрыто.";
         }
 
         private void SelectFile_Click(object sender, RoutedEventArgs e)
@@ -108,32 +94,25 @@ namespace iu5nt
 
         private void SendFile_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                fileStream = fileDialog.OpenFile();
-                var hash = new SHA512CryptoServiceProvider().ComputeHash(fileStream);
-                fileStream.Seek(0, SeekOrigin.Begin);
+            fileStream = fileDialog.OpenFile();
+            var hash = new SHA512CryptoServiceProvider().ComputeHash(fileStream);
+            fileStream.Seek(0, SeekOrigin.Begin);
 
-                var stream = new MemoryStream();
-                var writer = new BinaryWriter(stream);
+            var stream = new MemoryStream();
+            var writer = new BinaryWriter(stream);
 
-                writer.Write((byte)MessageType.FileName);
-                writer.Write(fileDialog.SafeFileName);
-                writer.Write(fileStream.Length);
-                writer.Write(hash); // 64 bytes for security
+            writer.Write((byte)MessageType.FileName);
+            writer.Write(fileDialog.SafeFileName);
+            writer.Write(fileStream.Length);
+            writer.Write(hash); // 64 bytes for security
 
-                sending = true;
-                CloseButton.IsEnabled = false;
-                FileBox.IsEnabled = false;
-                DirectoryBox.IsEnabled = false;
-                StatusText.Text = "Установка логического соединения...";
-                Title = "Отправляем " + fileDialog.SafeFileName;
-                SendPacket(stream.ToArray());
-            }
-            catch (Exception er)
-            {
-                MessageBox.Show(er.Message);
-            }
+            sending = true;
+            CloseButton.IsEnabled = false;
+            FileBox.IsEnabled = false;
+            DirectoryBox.IsEnabled = false;
+            StatusText.Text = "Установка логического соединения...";
+            Title = "Отправляем " + fileDialog.SafeFileName;
+            SendPacket(stream.ToArray());
         }
 
         private void InvokeHandler(byte[] packet, bool check)
@@ -217,38 +196,31 @@ namespace iu5nt
                 MessageBox.Show("Необходимо выбрать папку для приёма файла.");
                 return;
             }
-            try
+            fileName = reader.ReadString();
+            length = reader.ReadInt64();
+            var hash = reader.ReadBytes(64);
+
+            hashName = "";
+            foreach (var b in hash)
             {
-                fileName = reader.ReadString();
-                length = reader.ReadInt64();
-                var hash = reader.ReadBytes(64);
-
-                hashName = "";
-                foreach (var b in hash)
-                {
-                    hashName += b.ToString("x2");
-                }
-
-                tempPath = Path.Combine(folderDialog.SelectedPath, hashName);
-                filePath = Path.Combine(folderDialog.SelectedPath, fileName);
-
-                fileStream = File.OpenWrite(tempPath);
-                fileStream.Seek(0, SeekOrigin.End);
-
-                DisconnectButton.IsEnabled = true;
-                CloseButton.IsEnabled = false;
-                FileBox.IsEnabled = false;
-                DirectoryBox.IsEnabled = false;
-                StatusText.Text = "Логическое соединение установлено.";
-                Title = "Принимаем " + fileName;
-                sending = false;
-
-                RequestFileChunk();
+                hashName += b.ToString("x2");
             }
-            catch (Exception er)
-            {
-                MessageBox.Show(er.Message);
-            }
+
+            tempPath = Path.Combine(folderDialog.SelectedPath, hashName);
+            filePath = Path.Combine(folderDialog.SelectedPath, fileName);
+
+            fileStream = File.OpenWrite(tempPath);
+            fileStream.Seek(0, SeekOrigin.End);
+
+            DisconnectButton.IsEnabled = true;
+            CloseButton.IsEnabled = false;
+            FileBox.IsEnabled = false;
+            DirectoryBox.IsEnabled = false;
+            StatusText.Text = "Логическое соединение установлено.";
+            Title = "Принимаем " + fileName;
+            sending = false;
+
+            RequestFileChunk();
         }
 
         private void RequestFileChunk()
@@ -352,7 +324,9 @@ namespace iu5nt
                 return;
             }
 
-            if (lastPacket[0] == (byte)MessageType.FileReceivedOk)
+            if (lastPacket[0] == (byte)MessageType.FileReceivedOk ||
+                lastPacket[0] == (byte)MessageType.FileReceived ||
+                lastPacket[0] == (byte)MessageType.Disconnect)
             {
                 timer.Stop();
                 return;
@@ -381,6 +355,18 @@ namespace iu5nt
             SendPacket(new byte[] { (byte)MessageType.Disconnect });
             timer.Stop();
         }
+
+        private void PortCheck(bool DSR, bool CTS)
+        {
+            // Nothing to do here
+        }
+
+        private void ExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            e.Handled = true;
+            MessageBox.Show(e.Exception.Message);
+        }
+
 
         private enum MessageType:byte
         {
