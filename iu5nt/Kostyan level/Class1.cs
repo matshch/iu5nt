@@ -169,9 +169,8 @@ namespace iu5nt.Kostyan_level
         static SerialPort _serialPort;
         public static bool connected = false;
         public static List<UInt32> failList = learning();
-        public delegate void PortCheck(bool DSR, bool CTS);
         public delegate void PortListener(bool DSR, bool CTS, bool DTR, bool RTS);
-        public static event PortCheck onCheck;
+        public static event PortListener onCheck;
         public static event PortListener UICheck;
         public static void SetRts(bool setter)
         {
@@ -297,7 +296,7 @@ namespace iu5nt.Kostyan_level
                 if(_serialPort.CtsHolding && _serialPort.DsrHolding){
                     _serialPort.Write(getCycled(new BitArray(array)), 0, 2);
                 } else {
-                    onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding);
+                    onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
                     return;
                 }
             }
