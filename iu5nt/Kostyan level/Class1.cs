@@ -175,6 +175,7 @@ namespace iu5nt.Kostyan_level
         public static void SetRts(bool setter)
         {
             _serialPort.RtsEnable = setter;
+            onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
         }
         static void StatusCheck (Object sender, SerialPinChangedEventArgs e){
             UICheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
