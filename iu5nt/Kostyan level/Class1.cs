@@ -287,7 +287,7 @@ namespace iu5nt.Kostyan_level
                 if(_serialPort.CtsHolding && _serialPort.DsrHolding){
                     _serialPort.Write(getCycled(new BitArray(array)), 0, 2);
                 } else {
-                    onCheck(_serialPort.DsrHolding && _serialPort.CtsHolding);
+                    onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding);
                     return;
                 }
             }
