@@ -61,6 +61,8 @@ namespace iu5nt
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Physical.Disconnect();
+            DsrIndicator.IsChecked = false;
+            CtsIndicator.IsChecked = false;
             OpenButton.IsEnabled = true;
             CloseButton.IsEnabled = false;
             PortsList.IsEnabled = true;
@@ -115,6 +117,23 @@ namespace iu5nt
             SendPacket(stream.ToArray());
         }
 
+        private void DisconnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            sending = null;
+            CloseButton.IsEnabled = true;
+            FileBox.IsEnabled = true;
+            DirectoryBox.IsEnabled = true;
+            DisconnectButton.IsEnabled = true;
+            if (fileStream != null)
+            {
+                fileStream.Close();
+            }
+
+            StatusText.Text = "Логическое соединение разорвано.";
+            SendPacket(new byte[] { (byte)MessageType.Disconnect });
+            MessageBox.Show("Логическое соединение разорвано.");
+        }
+
         private void InvokeHandler(byte[] packet, bool check)
         {
             Dispatcher.Invoke(new DataLink.RecieveMEthod(ReceiveMessage), DispatcherPriority.Send, packet, check);
@@ -150,6 +169,7 @@ namespace iu5nt
                     SaveFileChunk(reader);
                     break;
                 case MessageType.FileReceived:
+                    timer.Stop();
                     sending = null;
                     CloseButton.IsEnabled = true;
                     FileBox.IsEnabled = true;
@@ -162,6 +182,7 @@ namespace iu5nt
                     break;
                 case MessageType.FileReceivedOk:
                     if (sending == null) break;
+                    timer.Stop();
                     sending = null;
                     CloseButton.IsEnabled = true;
                     FileBox.IsEnabled = true;
@@ -332,7 +353,8 @@ namespace iu5nt
                 return;
             }
 
-            sending = null;
+            SendPacket(new byte[] { (byte)MessageType.Disconnect });
+
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
@@ -352,13 +374,18 @@ namespace iu5nt
                 StatusText.Text = "Логическое соединение потеряно.";
                 MessageBox.Show("Логическое соединение потеряно.");
             }
-            SendPacket(new byte[] { (byte)MessageType.Disconnect });
-            timer.Stop();
+            sending = null;
         }
 
         private void PortCheck(bool DSR, bool CTS)
         {
-            // Nothing to do here
+            Dispatcher.Invoke(new Physical.PortCheck(RealPortCheck), DispatcherPriority.Send, DSR, CTS);
+        }
+
+        private void RealPortCheck(bool DSR, bool CTS)
+        {
+            DsrIndicator.IsChecked = DSR;
+            CtsIndicator.IsChecked = CTS;
         }
 
         private void ExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs e)
