@@ -71,6 +71,10 @@ namespace iu5nt
             PortsList.IsEnabled = true;
             FileBox.IsEnabled = false;
             DirectoryBox.IsEnabled = false;
+            DtrIndicator.IsChecked = false;
+            DsrIndicator.IsChecked = false;
+            RtsIndicator.IsChecked = false;
+            CtsIndicator.IsChecked = false;
             StatusText.Text = "Физическое соединение закрыто.";
         }
 
