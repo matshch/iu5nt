@@ -282,9 +282,26 @@ namespace iu5nt
             else
             {
                 fileStream.Close();
-                File.Delete(filePath);
-                File.Move(tempPath, filePath);
-                SendPacket(new byte[] { (byte)MessageType.FileReceived });
+                fileStream = File.OpenRead(tempPath);
+                var hash = new SHA512CryptoServiceProvider().ComputeHash(fileStream);
+                fileStream.Close();
+                var myHashName = "";
+                foreach (var b in hash)
+                {
+                    myHashName += b.ToString("x2");
+                }
+                if (hashName == myHashName)
+                {
+                    File.Delete(filePath);
+                    File.Move(tempPath, filePath);
+                    SendPacket(new byte[] { (byte)MessageType.FileReceived });
+                }
+                else
+                {
+                    File.Delete(tempPath);
+                    fileStream = File.OpenWrite(tempPath);
+                    RequestFileChunk();
+                }
             }
         }
 
