@@ -29,6 +29,7 @@ namespace iu5nt.Kostyan_level
         static Timer cleanerTimer = new Timer(1000);
         public delegate void RecieveMEthod(byte[] packet, bool check);
         public static event RecieveMEthod onRecieve;
+
         static DataLink(){
             cleanerTimer.Elapsed += TimerListener;
         }
@@ -168,6 +169,8 @@ namespace iu5nt.Kostyan_level
         static SerialPort _serialPort;
         public static bool connected = false;
         public static List<UInt32> failList = learning();
+        public delegate void PortCheck(bool DSR, bool CTS);
+        public static event PortCheck onCheck;
         public static void Connect(String portName)
         {
             if (connected)
@@ -281,7 +284,12 @@ namespace iu5nt.Kostyan_level
             for (var i = 0; i < iterate; i++)
             {
                 var array = work.Skip(i * 11).Take(11).ToArray();
-                _serialPort.Write(getCycled(new BitArray(array)), 0, 2);
+                if(_serialPort.CtsHolding && _serialPort.DsrHolding){
+                    _serialPort.Write(getCycled(new BitArray(array)), 0, 2);
+                } else {
+                    onCheck(_serialPort.DsrHolding && _serialPort.CtsHolding);
+                    return;
+                }
             }
         }
         private static byte[] BitArrayToByteArray(BitArray bits)
