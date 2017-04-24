@@ -25,7 +25,7 @@ namespace iu5nt
         private const short chunkSize = 512;
 
         private DispatcherTimer timer = new DispatcherTimer() {
-            Interval = new TimeSpan(0, 0, 100) // 1 second
+            Interval = new TimeSpan(0, 0, 1) // 1 second
         };
         private ushort retries = 0;
         private const ushort maxRetries = 3;
@@ -169,6 +169,29 @@ namespace iu5nt
                     break;
                 case MessageType.FileChunk:
                     SaveFileChunk(reader);
+                    break;
+                case MessageType.FileReceived:
+                    sending = null;
+                    CloseButton.IsEnabled = true;
+                    FileBox.IsEnabled = true;
+                    DirectoryBox.IsEnabled = true;
+                    DisconnectButton.IsEnabled = false;
+                    StatusText.Text = "Файл успешно передан.";
+                    Title = "Локальная безадаптерная сеть";
+                    ProgressBar.Value = 1;
+                    SendPacket(new byte[] { (byte)MessageType.FileReceivedOk });
+                    MessageBox.Show("Файл успешно передан.");
+                    break;
+                case MessageType.FileReceivedOk:
+                    if (sending == null) break;
+                    sending = null;
+                    CloseButton.IsEnabled = true;
+                    FileBox.IsEnabled = true;
+                    DirectoryBox.IsEnabled = true;
+                    DisconnectButton.IsEnabled = false;
+                    StatusText.Text = "Файл успешно получен.";
+                    Title = "Локальная безадаптерная сеть";
+                    MessageBox.Show("Файл успешно получен.");
                     break;
                 case MessageType.Disconnect:
                     timer.Stop();
@@ -331,6 +354,12 @@ namespace iu5nt
                 return;
             }
 
+            if (lastPacket[0] == (byte)MessageType.FileReceivedOk)
+            {
+                timer.Stop();
+                return;
+            }
+
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
@@ -356,7 +385,7 @@ namespace iu5nt
 
         private enum MessageType:byte
         {
-            FileName, ReceiveNotReady, FileRequest, FileChunk, FileReceived, Disconnect
+            FileName, ReceiveNotReady, FileRequest, FileChunk, FileReceived, FileReceivedOk, Disconnect
         }
     }
 }
