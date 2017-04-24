@@ -34,21 +34,21 @@ namespace iu5nt.Kostyan_level
             debugBuffer.AddRange(bbuffer);
             while (recievedPacketBuffer.Count >= 8)
             {
-                
-                bool[] seriousBuffer = recievedPacketBuffer.GetRange(0,8).ToArray();
+
+                bool[] seriousBuffer = recievedPacketBuffer.GetRange(0, 8).ToArray();
                 recievedPacketBuffer.RemoveRange(0, 8);
                 var bitBufff = new BitArray(seriousBuffer);
                 byte[] recieved = new byte[1];
                 bitBufff.CopyTo(recieved, 0);
-                if(firstTrigger || recieved[0] == 0xFF){
+                if (firstTrigger || recieved[0] == 0xFF) {
                     recievedPacket.AddRange(recieved);
                     firstTrigger = true;
                 }
 
                 var packLen = recievedPacket.Count;
-                if(packLen > 6)
+                if (packLen > 6)
                 {
-                    for(var k = 1; k > 0 && packLen > 3; k--)
+                    for (var k = 1; k > 0 && packLen > 3; k--)
                     {
                         if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
                         {
@@ -76,7 +76,7 @@ namespace iu5nt.Kostyan_level
 
                         }
                     }
-                
+
                 }
             }
             if (secondTrigger)
@@ -97,7 +97,7 @@ namespace iu5nt.Kostyan_level
                     onRecieve(exactPacket, false);
                 }
                 recievedPacket.Clear();
-                recievedPacketBuffer.Clear();      
+                recievedPacketBuffer.Clear();
                 firstTrigger = false;
                 secondTrigger = false;
                 firstTPosition = 0;
@@ -115,19 +115,17 @@ namespace iu5nt.Kostyan_level
             currentPacket = newPacket;
             length += currentPacket.Length;
             var summBuffer = 0;
-            foreach(var item in currentPacket)
+            foreach (var item in currentPacket)
             {
                 summBuffer += item;
             }
             checkSumm = BitConverter.GetBytes(summBuffer);
             length += checkSumm.Length;
-            List<byte> indexPacket = new List<byte>(currentPacket);
-            for (var i = 0; i < currentPacket.Length; i++ ){
-                var taken = currentPacket[i];
-                if(taken == (byte)0xFF || taken == (byte)0xFE){
-                    indexPacket.Insert(i,(byte)0xFE);
-                }
-            }
+            var indexPacket = currentPacket
+                .SelectMany(x => (x == 0xFE || x == 0xFF) ?
+                    new byte[] { 0xFE, x } :
+                    new byte[] { x })
+                .ToList();
             indexPacket.Add((byte)0xFF);
             List<byte> indexSumm = new List<byte>(checkSumm);
             indexSumm.AddRange(indexPacket);
