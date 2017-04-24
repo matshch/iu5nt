@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Collections;
+using System.Timers;
 
 
 
@@ -25,8 +26,22 @@ namespace iu5nt.Kostyan_level
         static bool screenTrigger = false;
         static int firstTPosition = 0;
         static int counter = 4;
+        static Timer cleanerTimer = new Timer(1000);
         public delegate void RecieveMEthod(byte[] packet, bool check);
         public static event RecieveMEthod onRecieve;
+        public static DataLink(){
+            cleanerTimer.Elapsed += TimerListener;
+        }
+        static void TimerListener(object sender,    ElapsedEventArgs e){
+            if(firstTrigger){
+                recievedPacket.Clear();
+                recievedPacketBuffer.Clear();
+                firstTrigger = false;
+                secondTrigger = false;
+                firstTPosition = 0;   
+            }
+
+        }
         public static void RecievePacket(BitArray recievedBit)
         {
             bool[] bbuffer = new bool[11];
@@ -42,6 +57,9 @@ namespace iu5nt.Kostyan_level
                 byte[] recieved = new byte[1];
                 bitBufff.CopyTo(recieved, 0);
                 if (firstTrigger || recieved[0] == 0xFF) {
+                    if(!firstTrigger){
+                        cleanerTimer.Start();
+                    }
                     recievedPacket.AddRange(recieved);
                     firstTrigger = true;
                 }
@@ -108,6 +126,7 @@ namespace iu5nt.Kostyan_level
                 firstTrigger = false;
                 secondTrigger = false;
                 firstTPosition = 0;
+                cleanerTimer.Stop();
             }
         }
         public static void SendPacket(byte[] newPacket)
