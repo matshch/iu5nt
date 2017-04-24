@@ -192,7 +192,7 @@ namespace iu5nt.Kostyan_level
             _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
             _serialPort.PinChanged += new SerialPinChangedEventHandler(StatusCheck);
             _serialPort.Open();
-            onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding);
+            onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
             connected = true;
         }
         public static void Disconnect()
