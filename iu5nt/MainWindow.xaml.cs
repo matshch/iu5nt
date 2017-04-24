@@ -180,7 +180,6 @@ namespace iu5nt
                     Title = "Локальная безадаптерная сеть";
                     ProgressBar.Value = 1;
                     SendPacket(new byte[] { (byte)MessageType.FileReceivedOk });
-                    MessageBox.Show("Файл успешно передан.");
                     break;
                 case MessageType.FileReceivedOk:
                     if (sending == null) break;
@@ -191,7 +190,6 @@ namespace iu5nt
                     DisconnectButton.IsEnabled = false;
                     StatusText.Text = "Файл успешно получен.";
                     Title = "Локальная безадаптерная сеть";
-                    MessageBox.Show("Файл успешно получен.");
                     break;
                 case MessageType.Disconnect:
                     timer.Stop();
@@ -360,6 +358,7 @@ namespace iu5nt
                 return;
             }
 
+            sending = null;
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
