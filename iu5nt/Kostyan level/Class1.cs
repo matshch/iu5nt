@@ -22,6 +22,7 @@ namespace iu5nt.Kostyan_level
         static List<bool> debugBuffer = new List<bool>();
         static bool firstTrigger = false;
         static bool secondTrigger = false;
+        static bool screenTrigger = false;
         static int firstTPosition = 0;
         static int counter = 4;
         public delegate void RecieveMEthod(byte[] packet, bool check);
@@ -50,10 +51,11 @@ namespace iu5nt.Kostyan_level
                 {
                     for (var k = 1; k > 0 && packLen > 3; k--)
                     {
-                        if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                        if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE && !screenTrigger)
                         {
                             recievedPacket.RemoveAt(packLen - k - 1);
                             packLen--;
+                            screenTrigger = true;
                         }
                         else
                         {
@@ -67,11 +69,16 @@ namespace iu5nt.Kostyan_level
                             }
                             else
                             {
-                                if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE)
+                                if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE && !screenTrigger)
                                 {
                                     recievedPacket.RemoveAt(packLen - k - 1);
                                     packLen--;
-                                }
+                                    screenTrigger = true;
+                                } else {
+                                    if (screenTrigger){
+                                        screenTrigger = false;
+                                    }
+                                }         
                             }
 
                         }
