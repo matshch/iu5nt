@@ -170,7 +170,12 @@ namespace iu5nt.Kostyan_level
         public static bool connected = false;
         public static List<UInt32> failList = learning();
         public delegate void PortCheck(bool DSR, bool CTS);
+        public delegate void PortListener(SerialPinChange changed);
         public static event PortCheck onCheck;
+        public static event PortListener UICheck;
+        static void StatusCheck (Object sender, SerialPinChangedEventArgs e){
+            UICheck(e.EventType);
+        }
         public static void Connect(String portName)
         {
             if (connected)
