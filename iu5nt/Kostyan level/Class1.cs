@@ -29,7 +29,7 @@ namespace iu5nt.Kostyan_level
         static Timer cleanerTimer = new Timer(1000);
         public delegate void RecieveMEthod(byte[] packet, bool check);
         public static event RecieveMEthod onRecieve;
-        public static DataLink(){
+        static DataLink(){
             cleanerTimer.Elapsed += TimerListener;
         }
         static void TimerListener(object sender,    ElapsedEventArgs e){
