@@ -1,23 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO.Ports;
-using System.Collections;
 using System.Timers;
 
-
-
-namespace iu5nt.Kostyan_level
+namespace iu5nt
 {
     public static class DataLink
     {
         static byte[] currentPacket;
         static byte[] checkSumm;
-        static byte[] fullPacket;
         static int length = 0;
-        static int position = 0;
         static List<byte> recievedPacket = new List<byte>();
         static List<bool> recievedPacketBuffer = new List<bool>();
         static List<bool> debugBuffer = new List<bool>();
@@ -25,15 +19,14 @@ namespace iu5nt.Kostyan_level
         static bool secondTrigger = false;
         static bool screenTrigger = false;
         static int firstTPosition = 0;
-        static int counter = 4;
         static Timer cleanerTimer = new Timer(1000);
         public delegate void RecieveMEthod(byte[] packet, bool check);
-        public static event RecieveMEthod onRecieve;
+        public static event RecieveMEthod OnRecieve;
 
         static DataLink(){
             cleanerTimer.Elapsed += new ElapsedEventHandler(TimerListener);
         }
-        static void TimerListener(object sender,    ElapsedEventArgs e){
+        static void TimerListener(object sender, ElapsedEventArgs e){
             if(firstTrigger){
                 recievedPacket.Clear();
                 recievedPacketBuffer.Clear();
@@ -70,7 +63,7 @@ namespace iu5nt.Kostyan_level
                 {
                     for (var k = 1; k > 0 && packLen > 3; k--)
                     {
-                        if (recievedPacket[packLen - k] == (byte)0xFF && recievedPacket[packLen - k - 1] == (byte)0xFE && !screenTrigger)
+                        if (recievedPacket[packLen - k] == 0xFF && recievedPacket[packLen - k - 1] == 0xFE && !screenTrigger)
                         {
                             recievedPacket.RemoveAt(packLen - k - 1);
                             packLen--;
@@ -78,7 +71,7 @@ namespace iu5nt.Kostyan_level
                         }
                         else
                         {
-                            if (recievedPacket[packLen - k] == (byte)0xFF)
+                            if (recievedPacket[packLen - k] == 0xFF)
                             {
                                 if (!secondTrigger)
                                 {
@@ -88,7 +81,7 @@ namespace iu5nt.Kostyan_level
                             }
                             else
                             {
-                                if (recievedPacket[packLen - k] == (byte)0xFE && recievedPacket[packLen - k - 1] == (byte)0xFE && !screenTrigger)
+                                if (recievedPacket[packLen - k] == 0xFE && recievedPacket[packLen - k - 1] == 0xFE && !screenTrigger)
                                 {
                                     recievedPacket.RemoveAt(packLen - k - 1);
                                     packLen--;
@@ -117,10 +110,10 @@ namespace iu5nt.Kostyan_level
                 var checksummP = recievedPacket.Skip(1).Take(4).ToArray();
                 if (buffer == BitConverter.ToUInt32(checksummP, 0))
                 {
-                    onRecieve(exactPacket, true);
+                    OnRecieve(exactPacket, true);
                 } else
                 {
-                    onRecieve(exactPacket, false);
+                    OnRecieve(exactPacket, false);
                 }
                 recievedPacket.Clear();
                 recievedPacketBuffer.Clear();
@@ -138,7 +131,6 @@ namespace iu5nt.Kostyan_level
             firstTPosition = 0;
             recievedPacketBuffer.Clear();
             length = 0;
-            position = 0;
             currentPacket = newPacket;
             length += currentPacket.Length;
             var summBuffer = 0;
@@ -153,7 +145,7 @@ namespace iu5nt.Kostyan_level
                     new byte[] { 0xFE, x } :
                     new byte[] { x })
                 .ToList();
-            indexPacket.Add((byte)0xFF);
+            indexPacket.Add(0xFF);
             List<byte> indexSumm = new List<byte>(checkSumm);
             indexSumm.AddRange(indexPacket);
             indexSumm.Insert(0,0xFF);
@@ -168,14 +160,14 @@ namespace iu5nt.Kostyan_level
     {
         static SerialPort _serialPort;
         public static bool connected = false;
-        public static List<UInt32> failList = learning();
+        public static List<UInt32> failList = Learning();
         public delegate void PortListener(bool DSR, bool CTS, bool DTR, bool RTS);
-        public static event PortListener onCheck;
+        public static event PortListener OnCheck;
         public static event PortListener UICheck;
         public static void SetRts(bool setter)
         {
             _serialPort.RtsEnable = setter;
-            onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
+            OnCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
         }
         static void StatusCheck (Object sender, SerialPinChangedEventArgs e){
             UICheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
@@ -186,14 +178,16 @@ namespace iu5nt.Kostyan_level
             {
                 Disconnect();
             }
-            _serialPort = new SerialPort(portName);
-            _serialPort.BaudRate = 115200;
-            _serialPort.DtrEnable = true;
-            _serialPort.ReceivedBytesThreshold = 2;
+            _serialPort = new SerialPort(portName)
+            {
+                BaudRate = 115200,
+                DtrEnable = true,
+                ReceivedBytesThreshold = 2
+            };
             _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
             _serialPort.PinChanged += new SerialPinChangedEventHandler(StatusCheck);
             _serialPort.Open();
-            onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
+            OnCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
             connected = true;
         }
         public static void Disconnect()
@@ -201,9 +195,7 @@ namespace iu5nt.Kostyan_level
             _serialPort.Close();
             connected = false;
         }
-        private static void DataReceivedHandler(
-                        object sender,
-                        SerialDataReceivedEventArgs e)
+        private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
             var i = 0;
             while(_serialPort.BytesToRead > 1)
@@ -211,12 +203,11 @@ namespace iu5nt.Kostyan_level
                 i++;
                 var byteBuffer = new byte[4];
                 _serialPort.Read(byteBuffer,0,2);
-                var dec = deCycle(byteBuffer);
+                var dec = DeCycle(byteBuffer);
                 DataLink.RecievePacket(dec);
             }
-            //TODO
         }
-        static public List<UInt32> learning()
+        static public List<UInt32> Learning()
         {
             UInt32 study = 16384;
             UInt32 qbite = study;
@@ -247,7 +238,7 @@ namespace iu5nt.Kostyan_level
             }
             return getBuffed;
         }
-        static BitArray deCycle(byte[] cycled)
+        static BitArray DeCycle(byte[] cycled)
         {
 
             var buffer = BitConverter.ToUInt32(cycled,0);
@@ -262,8 +253,10 @@ namespace iu5nt.Kostyan_level
             if (qbite == 0)
             {
                 var convert = BitConverter.GetBytes(buffer / 16);
-                var bitar = new BitArray(convert);
-                bitar.Length = 11;
+                var bitar = new BitArray(convert)
+                {
+                    Length = 11
+                };
                 return bitar;
             }
             else
@@ -272,15 +265,19 @@ namespace iu5nt.Kostyan_level
                 if(indi > 3)
                 {
                     var convert = BitConverter.GetBytes(buffer / 16);
-                    var bitar = new BitArray(convert);
-                    bitar.Length = 11;
+                    var bitar = new BitArray(convert)
+                    {
+                        Length = 11
+                    };
                     bitar.Set(indi - 4, !bitar.Get(indi - 4));
                     return bitar;
                 } else
                 {
                     var convert = BitConverter.GetBytes(buffer / 16);
-                    var bitar = new BitArray(convert);
-                    bitar.Length = 11;
+                    var bitar = new BitArray(convert)
+                    {
+                        Length = 11
+                    };
                     return bitar;
                 }
 
@@ -295,9 +292,9 @@ namespace iu5nt.Kostyan_level
             {
                 var array = work.Skip(i * 11).Take(11).ToArray();
                 if(_serialPort.CtsHolding && _serialPort.DsrHolding){
-                    _serialPort.Write(getCycled(new BitArray(array)), 0, 2);
+                    _serialPort.Write(GetCycled(new BitArray(array)), 0, 2);
                 } else {
-                    onCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
+                    OnCheck(_serialPort.DsrHolding, _serialPort.CtsHolding, _serialPort.DtrEnable, _serialPort.RtsEnable);
                     return;
                 }
             }
@@ -308,7 +305,7 @@ namespace iu5nt.Kostyan_level
             bits.CopyTo(ret, 0);
             return ret;
         }
-        private static byte[] getCycled(BitArray eleven) {
+        private static byte[] GetCycled(BitArray eleven) {
             var buffer = new Int32[1];
             eleven.CopyTo(buffer, 0);
             UInt32 qbite = (uint)buffer[0];
@@ -324,7 +321,5 @@ namespace iu5nt.Kostyan_level
             return new byte[] { result[0], result[1] };
 
         }
-       
     }
-
  }

@@ -1,5 +1,4 @@
-﻿using iu5nt.Kostyan_level;
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Ports;
 using System.Security.Cryptography;
@@ -9,7 +8,7 @@ using wf = System.Windows.Forms;
 
 namespace iu5nt
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IDisposable
     {
         private wf.OpenFileDialog fileDialog = new wf.OpenFileDialog();
         private wf.FolderBrowserDialog folderDialog = new wf.FolderBrowserDialog();
@@ -33,8 +32,8 @@ namespace iu5nt
             InitializeComponent();
             PortsList.ItemsSource = SerialPort.GetPortNames();
             timer.Tick += ResendPacket;
-            DataLink.onRecieve += InvokeHandler;
-            Physical.onCheck += PortCheck;
+            DataLink.OnRecieve += InvokeHandler;
+            Physical.OnCheck += PortCheck;
             Physical.UICheck += PortCheck;
             Dispatcher.UnhandledException += ExceptionHandler;
         }
@@ -409,6 +408,11 @@ namespace iu5nt
             MessageBox.Show(e.Exception.Message);
         }
 
+        public void Dispose()
+        {
+            fileDialog.Dispose();
+            folderDialog.Dispose();
+        }
 
         private enum MessageType:byte
         {
