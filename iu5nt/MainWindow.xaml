@@ -17,18 +17,18 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <ComboBox x:Name="PortsList" Margin="3 4 0 6" Grid.ColumnSpan="2"/>
                 <Button x:Name="OpenButton" Content="Открыть порт" Margin="7 4 0 6" MinWidth="94" MinHeight="23" Grid.Column="2" Click="OpenButton_Click"/>
                 <Button x:Name="CloseButton" Content="Закрыть порт" IsEnabled="False" Margin="7 4 2 6" MinWidth="94" MinHeight="23" Grid.Column="3" Click="CloseButton_Click"/>
-                <RadioButton x:Name="DtrIndicator" Content="DTR" Margin="3 4 0 6" Grid.Row="1" IsEnabled="False"/>
-                <RadioButton x:Name="DsrIndicator" Content="DSR" Margin="7 4 0 6" Grid.Row="1" Grid.Column="1" IsEnabled="False"/>
-                <RadioButton x:Name="RtsIndicator" Content="RTS" Margin="7 4 0 6" Grid.Row="1" Grid.Column="2" IsEnabled="False"/>
-                <RadioButton x:Name="CtsIndicator" Content="CTS" Margin="7 4 2 6" Grid.Row="1" Grid.Column="3" IsEnabled="False"/>
+                <RadioButton x:Name="DtrIndicator" Content="DTR" GroupName="DTR" Margin="3 4 0 6" MinWidth="60" Grid.Row="1" IsEnabled="False"/>
+                <RadioButton x:Name="DsrIndicator" Content="DSR" GroupName="DSR" Margin="7 4 0 6" Grid.Row="1" Grid.Column="1" IsEnabled="False"/>
+                <RadioButton x:Name="RtsIndicator" Content="RTS" GroupName="RTS" Margin="7 4 0 6" Grid.Row="1" Grid.Column="2" IsEnabled="False"/>
+                <RadioButton x:Name="CtsIndicator" Content="CTS" GroupName="CTS" Margin="7 4 2 6" Grid.Row="1" Grid.Column="3" IsEnabled="False"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Отправка файла" x:Name="FileBox" IsEnabled="False" Margin="9 0 9 3" Grid.Row="1">

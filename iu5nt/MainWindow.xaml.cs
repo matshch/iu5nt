@@ -49,6 +49,10 @@ namespace iu5nt
             else
             {
                 Physical.Connect((string)port);
+                if (folderReady)
+                {
+                    Physical.SetRts(true);
+                }
                 OpenButton.IsEnabled = false;
                 CloseButton.IsEnabled = true;
                 PortsList.IsEnabled = false;
@@ -89,6 +93,7 @@ namespace iu5nt
             {
                 DirectoryName.Text = folderDialog.SelectedPath;
                 folderReady = true;
+                Physical.SetRts(true);
                 sending = null;
                 StatusText.Text = "Ожидаем логического соединения...";
             }
@@ -377,14 +382,16 @@ namespace iu5nt
             sending = null;
         }
 
-        private void PortCheck(bool DSR, bool CTS)
+        private void PortCheck(bool DSR, bool CTS, bool DTR, bool RTS)
         {
-            Dispatcher.Invoke(new Physical.PortCheck(RealPortCheck), DispatcherPriority.Send, DSR, CTS);
+            Dispatcher.Invoke(new Physical.PortListener(RealPortCheck), DispatcherPriority.Send, DSR, CTS, DTR, RTS);
         }
 
-        private void RealPortCheck(bool DSR, bool CTS)
+        private void RealPortCheck(bool DSR, bool CTS, bool DTR, bool RTS)
         {
+            DtrIndicator.IsChecked = DTR;
             DsrIndicator.IsChecked = DSR;
+            RtsIndicator.IsChecked = RTS;
             CtsIndicator.IsChecked = CTS;
         }
 
