@@ -61,6 +61,8 @@ namespace iu5nt
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Physical.Disconnect();
+            DsrIndicator.IsChecked = false;
+            CtsIndicator.IsChecked = false;
             OpenButton.IsEnabled = true;
             CloseButton.IsEnabled = false;
             PortsList.IsEnabled = true;
@@ -377,7 +379,13 @@ namespace iu5nt
 
         private void PortCheck(bool DSR, bool CTS)
         {
-            // Nothing to do here
+            Dispatcher.Invoke(new Physical.PortCheck(RealPortCheck), DispatcherPriority.Send, DSR, CTS);
+        }
+
+        private void RealPortCheck(bool DSR, bool CTS)
+        {
+            DsrIndicator.IsChecked = DSR;
+            CtsIndicator.IsChecked = CTS;
         }
 
         private void ExceptionHandler(object sender, DispatcherUnhandledExceptionEventArgs e)
