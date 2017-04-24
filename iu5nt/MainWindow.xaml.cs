@@ -134,7 +134,7 @@ namespace iu5nt
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
-            DisconnectButton.IsEnabled = true;
+            DisconnectButton.IsEnabled = false;
             if (fileStream != null)
             {
                 fileStream.Close();
@@ -142,7 +142,6 @@ namespace iu5nt
 
             StatusText.Text = "Логическое соединение разорвано.";
             SendPacket(new byte[] { (byte)MessageType.Disconnect });
-            MessageBox.Show("Логическое соединение разорвано.");
         }
 
         private void InvokeHandler(byte[] packet, bool check)
@@ -190,7 +189,7 @@ namespace iu5nt
                     Title = "Локальная безадаптерная сеть";
                     ProgressBar.Value = 1;
                     SendPacket(new byte[] { (byte)MessageType.FileReceivedOk });
-                    Physical.SetRts(false);
+                    Physical.SetRts(folderReady);
                     break;
                 case MessageType.FileReceivedOk:
                     if (sending == null) break;
@@ -205,6 +204,10 @@ namespace iu5nt
                     break;
                 case MessageType.Disconnect:
                     timer.Stop();
+                    if (fileStream != null)
+                    {
+                        fileStream.Close();
+                    }
                     sending = null;
                     CloseButton.IsEnabled = true;
                     FileBox.IsEnabled = true;
@@ -212,7 +215,12 @@ namespace iu5nt
                     DisconnectButton.IsEnabled = false;
                     StatusText.Text = "Логическое соединение разорвано.";
                     Title = "Локальная безадаптерная сеть";
-                    MessageBox.Show("Логическое соединение разорвано.");
+                    SendPacket(new byte[] { (byte)MessageType.DisconnectOk });
+                    Physical.SetRts(folderReady);
+                    break;
+                case MessageType.DisconnectOk:
+                    timer.Stop();
+                    Physical.SetRts(folderReady);
                     break;
                 default:
                     MessageBox.Show("Получен неизвестный пакет.");
@@ -280,7 +288,6 @@ namespace iu5nt
         {
             if (sending != true)
             {
-                MessageBox.Show("Получен повреждённый пакет.");
                 return;
             }
 
@@ -323,7 +330,6 @@ namespace iu5nt
         {
             if (sending != false)
             {
-                MessageBox.Show("Получен повреждённый пакет.");
                 return;
             }
 
@@ -359,7 +365,8 @@ namespace iu5nt
 
             if (lastPacket[0] == (byte)MessageType.FileReceivedOk ||
                 lastPacket[0] == (byte)MessageType.FileReceived ||
-                lastPacket[0] == (byte)MessageType.Disconnect)
+                lastPacket[0] == (byte)MessageType.Disconnect ||
+                lastPacket[0] == (byte)MessageType.DisconnectOk)
             {
                 timer.Stop();
                 return;
@@ -416,7 +423,7 @@ namespace iu5nt
 
         private enum MessageType:byte
         {
-            FileName, ReceiveNotReady, FileRequest, FileChunk, FileReceived, FileReceivedOk, Disconnect
+            FileName, ReceiveNotReady, FileRequest, FileChunk, FileReceived, FileReceivedOk, Disconnect, DisconnectOk
         }
     }
 }
