@@ -360,6 +360,7 @@ namespace iu5nt
                 return;
             }
 
+            sending = null;
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
