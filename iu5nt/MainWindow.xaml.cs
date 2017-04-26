@@ -393,8 +393,6 @@ namespace iu5nt
                 return;
             }
 
-            SendPacket(new byte[] { (byte)MessageType.Disconnect });
-
             CloseButton.IsEnabled = true;
             FileBox.IsEnabled = true;
             DirectoryBox.IsEnabled = true;
@@ -411,6 +409,7 @@ namespace iu5nt
             }
             else
             {
+                SendPacket(new byte[] { (byte)MessageType.Disconnect });
                 StatusText.Text = "Логическое соединение потеряно.";
                 MessageBox.Show("Логическое соединение потеряно.");
             }
