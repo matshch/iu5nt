@@ -1,0 +1,284 @@
+\documentclass[russian,utf8,a2paper,simple,nocolumnxxvi,vpadding=0mm]{eskdgraph}
+\usepackage{cmap}
+\usepackage{tikz}
+\usetikzlibrary{shapes.misc,shapes.geometric,calc,positioning}
+
+\newcommand{\No}{\textnumero}
+
+\ESKDdepartment{МГТУ им. Н.Э.\,Баумана}
+\ESKDcompany{Кафедра ИУ5\\Группа ИУ5-64}
+
+\ESKDsignature{Локальная безадаптерная сеть}
+\ESKDtitle{Алгоритмы программы}
+\ESKDmaterial{\ESKDfontIII Курсовая работа по~курсу\\<<Сетевые технологии в~АСОИУ>>}
+\ESKDauthor{Лещев А.О.}
+\ESKDcolumnXIfII{\ESKDfontII Мельников К.И.}
+\renewcommand{\ESKDcolumnXfIIname}{}
+\ESKDapprovedBy{Галкин В.А.}
+\ESKDdate{2017/04/25}
+
+\renewcommand{\ESKDcolumnXfIIIname}{}
+\renewcommand{\ESKDcolumnXfVname}{}
+\ESKDcolumnIX{\ESKDfontIII\ESKDtheDepartment\\\ESKDtheCompany}
+
+\begin{document}
+\setlength{\hsize}{\ESKDframeW}
+\begin{ESKDdrawing}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Открытие COM-порта};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=13em] (button) {Нажата кнопка\\<<Открыть порт>>};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button,text width=12em] (obj) {Создать объект\\\texttt{SerialPort}};
+\node [below=1em of obj,text width=12em] (par) {Установить параметры COM-порта};
+\node [below=1em of par,text width=12em] (hand) {Установить обработчики COM-порта};
+\node [below=1em of hand] (open) {Открыть COM-порт};
+\node [below=1em of open] (set) {DTR~--- активен};
+\node [below=1em of set,diamond,aspect=3] (error) {Произошла ошибка};
+\node [below=of error,text width=14em] (pin) {Отобразить\\состояние контактов};
+\node [below=1em of pin,text width=14em] (int) {Включить выбор файла и папки};
+\coordinate [below=1em of int] (bend);
+\node [rounded rectangle,below=1em of bend] (end) {Конец};
+\node [right=of pin,text width=9em] (msg) {Отобразить\\сообщение об~ошибке};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (obj);
+\draw (obj) -- (par);
+\draw (par) -- (hand);
+\draw (hand) -- (open);
+\draw (open) -- (set);
+\draw (set) -- (error);
+\draw (error) -- node [right,draw=none] {Нет} (pin);
+\draw (error) -| node [above right,pos=0,draw=none] {Да} (msg);
+\draw (pin) -- (int);
+\draw (int) -- (bend);
+\draw (msg) |- (bend);
+\draw (bend) -- (end);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Закрытие COM-порта};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=13em] (button) {Нажата кнопка\\<<Закрыть порт>>};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button] (open) {Закрыть COM-порт};
+\node [below=1em of open,text width=14em] (pin) {Выключить\\состояние контактов};
+\node [below=1em of pin,text width=14em] (int) {Выключить\\выбор файла и папки};
+\node [rounded rectangle,below=1em of int] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (open);
+\draw (open) -- (pin);
+\draw (pin) -- (int);
+\draw (int) -- (end);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Выбор папки};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=13em] (button) {Нажата кнопка\\<<Выбрать папку>>};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button,text width=14em] (open) {Открыть диалог\\выбора папки};
+\node [below=1em of open,diamond,aspect=3] (select) {Папка выбрана};
+\coordinate [left=1em of button] (lselect);
+\node [below=of select,text width=14em] (pin) {RTS~--- активен};
+\node [rounded rectangle,below=1em of pin] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (open);
+\draw (open) -- (select);
+\draw (select) -| node [above left,pos=0,draw=none] {Нет} (lselect) |- (bstart);
+\draw (select) -- node [right,draw=none] {Да} (pin);
+\draw (pin) -- (end);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Начало отправки файла};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=12em] (button) {Нажата кнопка\\<<Выбрать файл>>};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button,text width=14em] (open) {Открыть диалог\\выбора файла};
+\node [below=1em of open,diamond,aspect=3] (select) {Файл выбран};
+\coordinate [left=1em of button] (lselect);
+\coordinate [below=of select] (lr);
+\node [below=1em of lr,diamond,aspect=3,text width=13em] (ispin) {Нажата кнопка\\<<Отправить файл>>};
+\coordinate [left=4em of ispin] (lselect2);
+\node [below=of ispin,diamond,aspect=3] (button2) {DSR и CTS активны};
+\node [below=of button2] (pin) {RTS~--- активен};
+\coordinate [right=1em of ispin] (lbutton2);
+\node [below=1em of pin] (pkg) {Отправить данные о~файле};
+\node [rounded rectangle,below=1em of pkg] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (open);
+\draw (open) -- (select);
+\draw (select) -| node [above left,pos=0,draw=none] {Нет} (lselect) |- (bstart);
+\draw (select) -- node [right,draw=none] {Да} (lr);
+\draw (lr) -- (ispin);
+\draw (ispin) -- node [above left,pos=0,draw=none] {Нет} (lselect2) |- (lr);
+\draw (ispin) -- node [right,draw=none] {Да} (button2);
+\draw (button2) -| node [above right,pos=0,draw=none] {Нет} (lbutton2) |- (lr);
+\draw (button2) -- node [right,draw=none] {Да} (pin);
+\draw (pin) -- (pkg);
+\draw (pkg) -- (end);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none,xshift=4em] (name) {\Huge Начало получения файла};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=11em] (button) {Получены\\данные о~файле};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button,diamond,aspect=3] (select) {Папка выбрана};
+\node [below=of select] (file) {Открыть (создать) файл};
+\node [below=1em of file] (chunk) {Запросить часть файла};
+\node [right=4em of file,text width=13em] (error) {Отправить\\сообщение\\об~ошибке};
+\coordinate [below=1em of chunk] (lend);
+\node [rounded rectangle,below=1em of lend] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (select);
+\draw (select) -| node [above right,pos=0,draw=none] {Нет} (error);
+\draw (select) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (chunk);
+\draw (chunk) -- (lend);
+\draw (error) |- (lend);
+\draw (lend) -- (end);
+\end{tikzpicture}\hfill\phantom{}\\[5em]
+
+\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Отправка пакета};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart] (header) {Добавить заголовок};
+\node [below=1em of header] (esc) {Экранировать \texttt{0xFF}};
+\node [below=1em of esc] (stop) {Добавить старт-стоп-байты};
+\node [below=1em of stop] (kadr) {Разбить на группы по~11~бит};
+\coordinate [below=1em of kadr] (bend);
+\node [below=1em of bend,diamond,aspect=3] (button) {Остались группы};
+\node [below=of button] (cic) {Добавить проверочные биты};
+\node [below=1em of cic] (send) {Отправить группу};
+\coordinate [below=1em of send] (bsend);
+\coordinate [left=1em of cic] (bsend2);
+\node [right=of cic] (wait) {Ждать ответа};
+\node [below=1em of wait,diamond,aspect=3] (ans) {Ответ получен};
+\coordinate [right=4em of ans] (bans);
+\node [rounded rectangle,below=of ans] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (header);
+\draw (header) -- (esc);
+\draw (esc) -- (stop);
+\draw (stop) -- (kadr);
+\draw (kadr) -- (bend);
+\draw (bend) -- (button);
+\draw (button) -| node [above right,pos=0,draw=none] {Нет} (wait);
+\draw (button) -- node [right,draw=none] {Да} (cic);
+\draw (cic) -- (send);
+\draw (send) |- (bsend) -| (bsend2) |- (bend);
+\draw (wait) -- (ans);
+\draw (ans) -- node [right,draw=none] {Да} (end);
+\draw (ans) -- node [above right,pos=0,draw=none] {Нет} (bans) |- (bstart);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Получение пакета};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3] (button) {Получены 2~байта};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button] (cic) {Проверить и исправить биты};
+\node [below=1em of cic,diamond,aspect=3] (button2) {Достаточно бит};
+\coordinate [left=4em of button] (lbutton2);
+\node [below=of button2] (file) {Собрать байты};
+\node [below=1em of file] (esc) {Убрать экранирование};
+\node [below=1em of esc,diamond,aspect=3] (button3) {Найден кадр};
+\node [below=of button3,diamond,aspect=3] (button4) {Пакет правильный};
+\coordinate [right=4em of button4] (rend);
+\node [below=of button4] (proc) {Обработать пакет};
+\coordinate [below=1em of proc] (bend);
+\node [rounded rectangle,below=1em of bend] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (lbutton) |- (bstart);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton);
+\draw (button) -- node [right,draw=none] {Да} (cic);
+\draw (cic) -- (button2);
+\draw (button2) -| node [above left,pos=0,draw=none] {Нет} (lbutton2) |- (bstart);
+\draw (button2) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (esc);
+\draw (esc) -- (button3);
+\draw (button3) -| node [above right,pos=0,draw=none] {Нет} (lbutton);
+\draw (button3) -- node [right,draw=none] {Да} (button4);
+\draw (button4) -| node [above right,pos=0,draw=none] {Нет} (rend) |- (bend);
+\draw (button4) -- node [right,draw=none] {Да} (proc);
+\draw (proc) -- (bend);
+\draw (bend) -- (end);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Отправка части файла};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=10em] (button) {Получен запрос\\части файла};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button] (file) {Отправить часть файла};
+\node [rounded rectangle,below=1em of file] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (end);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Получение части файла};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=9em] (button) {Получена\\часть файла};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button] (file) {Сохранить часть файла};
+\node [below=1em of file,diamond,aspect=3,text width=9em] (rec) {Файл получен\\полностью};
+\node [below=of rec] (kv) {Отправить квитанцию};
+\node [right=of kv] (req) {Запросить часть файла};
+\coordinate [below=1em of kv] (lend);
+\node [rounded rectangle,below=1em of lend] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (rec);
+\draw (rec) -| node [above right,pos=0,draw=none] {Нет} (req);
+\draw (rec) -- node [right,draw=none] {Да} (kv);
+\draw (kv) -- (lend);
+\draw (req) |- (lend);
+\draw (lend) -- (end);
+\end{tikzpicture}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\large,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\node [above=1em of start,draw=none] (name) {\Huge Завершение передачи файла};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=8em] (button) {Получена\\квитанция};
+\coordinate [right=4em of button] (lbutton);
+\node [below=of button] (file) {RTS~--- неактивен};
+\node [rounded rectangle,below=1em of file] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (end);
+\end{tikzpicture}\hfill\phantom{}
+\end{ESKDdrawing}
+\end{document}

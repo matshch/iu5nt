@@ -1,0 +1,166 @@
+\documentclass[russian,utf8,a2paper,simple,nocolumnxxvi,vpadding=0mm]{eskdgraph}
+\usepackage{cmap}
+\usepackage{tikz}
+\usetikzlibrary{shapes.misc,shapes.geometric,calc,positioning}
+
+\newcommand{\No}{\textnumero}
+
+\ESKDdepartment{МГТУ им. Н.Э.\,Баумана}
+\ESKDcompany{Кафедра ИУ5\\Группа ИУ5-64}
+
+\ESKDsignature{Локальная безадаптерная сеть}
+\ESKDtitle{Временные диаграммы работы протоколов}
+\ESKDmaterial{\ESKDfontIII Курсовая работа по~курсу\\<<Сетевые технологии в~АСОИУ>>}
+\ESKDauthor{Лещев А.О.}
+\ESKDcolumnXIfII{\ESKDfontII Мельников К.И.}
+\renewcommand{\ESKDcolumnXfIIname}{}
+\ESKDapprovedBy{Галкин В.А.}
+\ESKDdate{2017/04/25}
+
+\renewcommand{\ESKDcolumnXfIIIname}{}
+\renewcommand{\ESKDcolumnXfVname}{}
+\ESKDcolumnIX{\ESKDfontIII\ESKDtheDepartment\\\ESKDtheCompany}
+
+\begin{document}
+\setlength{\hsize}{\ESKDframeW}
+\begin{ESKDdrawing}\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\Large,baseline=0em]
+\node (send1) {\LARGE Передатчик};
+\node [right=3em of send1] (recv1) {\LARGE Приёмник};
+\node [anchor=north] at ($(send1.south east)!.5!(recv1.south west)$) {Успешное};
+\draw [-,very thick] (send1.north) -- ($(send1.north) + (0,30em)$);
+\draw [-,very thick] (recv1.north) -- ($(recv1.north) + (0,30em)$);
+\draw ($(send1.north) + (0,2em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileName}} ($(recv1.north) + (0,5em)$);
+\draw ($(recv1.north) + (0,6em)$) -- node [pos=0.9,above,anchor=south west] {\texttt{FileRequest}} ($(send1.north) + (0,9em)$);
+
+\node [right=2em of recv1] (send2) {\LARGE Передатчик};
+\node [right=3em of send2] (recv2) {\LARGE Приёмник};
+\node [anchor=north] at ($(send2.south east)!.5!(recv2.south west)$) {Неуспешное (обрыв канала)};
+\draw [-,very thick] (send2.north) -- ($(send2.north) + (0,30em)$);
+\draw [-,very thick] (recv2.north) -- ($(recv2.north) + (0,30em)$);
+\draw ($(send2.north) + (0,2em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileName}} ($(recv2.north) + (0,5em)$);
+\draw ($(send2.north) + (0,10em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileName}} ($(recv2.north) + (0,13em)$);
+\draw ($(send2.north) + (0,18em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileName}} ($(recv2.north) + (0,21em)$);
+\draw [-,thin] ($(send2.north) + (0,2em)$) -- ($(send2.north) + (-2.5em,2em)$);
+\draw [-,thin] ($(send2.north) + (0,10em)$) -- ($(send2.north) + (-2.5em,10em)$);
+\draw [-,thin] ($(send2.north) + (0,18em)$) -- ($(send2.north) + (-2.5em,18em)$);
+\draw [-,thin] ($(send2.north) + (0,26em)$) -- ($(send2.north) + (-2.5em,26em)$);
+\draw [latex-latex] ($(send2.north) + (-2em,2em)$) -- node [above,rotate=90] {Таймаут} ($(send2.north) + (-2em,10em)$);
+\draw [latex-latex] ($(send2.north) + (-2em,10em)$) -- node [above,rotate=90] {Таймаут} ($(send2.north) + (-2em,18em)$);
+\draw [latex-latex] ($(send2.north) + (-2em,18em)$) -- node [above,rotate=90] {Таймаут} ($(send2.north) + (-2em,26em)$);
+
+\node [right=2em of recv2] (send3) {\LARGE Передатчик};
+\node [right=3em of send3] (recv3) {\LARGE Приёмник};
+\node [anchor=north] at ($(send3.south east)!.5!(recv3.south west)$) {Неуспешное (неготовность приёмника)};
+\draw [-,very thick] (send3.north) -- ($(send3.north) + (0,30em)$);
+\draw [-,very thick] (recv3.north) -- ($(recv3.north) + (0,30em)$);
+\draw ($(send3.north) + (0,2em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileName}} ($(recv3.north) + (0,5em)$);
+\draw ($(recv3.north) + (0,6em)$) -- node [pos=1,above,anchor=south west] {\texttt{ReceiveNotReady}} ($(send3.north) + (0,9em)$);
+
+\node [anchor=south] at ($($(send1.north) + (0,30em)$)!.5!($(recv3.north) + (0,30em)$)$) {\Huge Логическое соединение};
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\Large,baseline=0em]
+\node (send1) {\LARGE Передатчик};
+\node [right=3em of send1] (recv1) {\LARGE Приёмник};
+\node [anchor=north] at ($(send1.south east)!.5!(recv1.south west)$) {Успешное};
+\draw [-,very thick] (send1.north) -- ($(send1.north) + (0,30em)$);
+\draw [-,very thick] (recv1.north) -- ($(recv1.north) + (0,30em)$);
+\draw ($(recv1.north) + (0,2em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{FileRequest}} ($(send1.north) + (0,5em)$);
+\draw ($(send1.north) + (0,6em)$) -- node [pos=0.7,above,anchor=south east] {\texttt{FileChunk}} ($(recv1.north) + (0,9em)$);
+\node at ($($(recv1.north) + (0,10em)$)!.5!($(send1.north) + (0,12em)$)$) {\Huge$\cdots$};
+\draw ($(recv1.north) + (0,12em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{FileRequest}} ($(send1.north) + (0,15em)$);
+\draw ($(send1.north) + (0,16em)$) -- node [pos=0.7,above,anchor=south east] {\texttt{FileChunk}} ($(recv1.north) + (0,19em)$);
+\draw ($(recv1.north) + (0,20em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{FileReceived}} ($(send1.north) + (0,23em)$);
+\draw ($(send1.north) + (0,24em)$) -- node [pos=1,above,anchor=south east] {\texttt{FileReceivedOk}} ($(recv1.north) + (0,27em)$);
+
+\node [right=2em of recv1] (send2) {\LARGE Передатчик};
+\node [right=3em of send2] (recv2) {\LARGE Приёмник};
+\node [anchor=north] at ($(send2.south east)!.5!(recv2.south west)$) {Неуспешное (отказ передатчика)};
+\draw [-,very thick] (send2.north) -- ($(send2.north) + (0,30em)$);
+\draw [-,very thick] (recv2.north) -- ($(recv2.north) + (0,30em)$);
+\draw ($(recv2.north) + (0,2em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{FileRequest}} ($(send2.north) + (0,5em)$);
+\draw ($(recv2.north) + (0,10em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{FileRequest}} ($(send2.north) + (0,13em)$);
+\draw ($(recv2.north) + (0,18em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{FileRequest}} ($(send2.north) + (0,21em)$);
+\draw ($(recv2.north) + (0,26em)$) -- node [pos=0.8,above,anchor=south west] {\texttt{Disconnect}} ($(send2.north) + (0,29em)$);
+\draw [-,thin] ($(recv2.north) + (0,2em)$) -- ($(recv2.north) + (2.5em,2em)$);
+\draw [-,thin] ($(recv2.north) + (0,10em)$) -- ($(recv2.north) + (2.5em,10em)$);
+\draw [-,thin] ($(recv2.north) + (0,18em)$) -- ($(recv2.north) + (2.5em,18em)$);
+\draw [-,thin] ($(recv2.north) + (0,26em)$) -- ($(recv2.north) + (2.5em,26em)$);
+\draw [latex-latex] ($(recv2.north) + (2em,2em)$) -- node [below,rotate=90] {Таймаут} ($(recv2.north) + (2em,10em)$);
+\draw [latex-latex] ($(recv2.north) + (2em,10em)$) -- node [below,rotate=90] {Таймаут} ($(recv2.north) + (2em,18em)$);
+\draw [latex-latex] ($(recv2.north) + (2em,18em)$) -- node [below,rotate=90] {Таймаут} ($(recv2.north) + (2em,26em)$);
+
+\node [right=2em of recv2] (send3) {\LARGE Передатчик};
+\node [right=3em of send3] (recv3) {\LARGE Приёмник};
+\node [anchor=north] at ($(send3.south east)!.5!(recv3.south west)$) {Неуспешное (отказ приёмника)};
+\draw [-,very thick] (send3.north) -- ($(send3.north) + (0,30em)$);
+\draw [-,very thick] (recv3.north) -- ($(recv3.north) + (0,30em)$);
+\draw ($(send3.north) + (0,2em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileChunk}} ($(recv3.north) + (0,5em)$);
+\draw ($(send3.north) + (0,10em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileChunk}} ($(recv3.north) + (0,13em)$);
+\draw ($(send3.north) + (0,18em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{FileChunk}} ($(recv3.north) + (0,21em)$);
+\draw ($(send3.north) + (0,26em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{Disconnect}} ($(recv3.north) + (0,29em)$);
+\draw [-,thin] ($(send3.north) + (0,2em)$) -- ($(send3.north) + (-2.5em,2em)$);
+\draw [-,thin] ($(send3.north) + (0,10em)$) -- ($(send3.north) + (-2.5em,10em)$);
+\draw [-,thin] ($(send3.north) + (0,18em)$) -- ($(send3.north) + (-2.5em,18em)$);
+\draw [-,thin] ($(send3.north) + (0,26em)$) -- ($(send3.north) + (-2.5em,26em)$);
+\draw [latex-latex] ($(send3.north) + (-2em,2em)$) -- node [above,rotate=90] {Таймаут} ($(send3.north) + (-2em,10em)$);
+\draw [latex-latex] ($(send3.north) + (-2em,10em)$) -- node [above,rotate=90] {Таймаут} ($(send3.north) + (-2em,18em)$);
+\draw [latex-latex] ($(send3.north) + (-2em,18em)$) -- node [above,rotate=90] {Таймаут} ($(send3.north) + (-2em,26em)$);
+
+\node [anchor=south] at ($($(send1.north) + (0,30em)$)!.5!($(recv3.north) + (0,30em)$)$) {\Huge Передача файла};
+\end{tikzpicture}\hfill\phantom{a}\\[5em]
+
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\Large,baseline=0em]
+\node (send1) {\LARGE Сторона~1};
+\node [right=3em of send1] (recv1) {\LARGE Сторона~2};
+\node [anchor=north] at ($(send1.south east)!.5!(recv1.south west)$) {Успешное (принудительное)};
+\draw [-,very thick] (send1.north) -- ($(send1.north) + (0,30em)$);
+\draw [-,very thick] (recv1.north) -- ($(recv1.north) + (0,30em)$);
+\draw ($(send1.north) + (0,2em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{Disconnect}} ($(recv1.north) + (0,5em)$);
+\draw ($(recv1.north) + (0,6em)$) -- node [pos=0.9,above,anchor=south west] {\texttt{DisconnectOk}} ($(send1.north) + (0,9em)$);
+
+\node [right=2em of recv1] (send2) {\LARGE Передатчик};
+\node [right=3em of send2] (recv2) {\LARGE Приёмник};
+\node [anchor=north] at ($(send2.south east)!.5!(recv2.south west)$) {Успешное (при~передаче файла)};
+\draw [-,very thick] (send2.north) -- ($(send2.north) + (0,30em)$);
+\draw [-,very thick] (recv2.north) -- ($(recv2.north) + (0,30em)$);
+\draw ($(recv2.north) + (0,2em)$) -- node [pos=0.1,below,anchor=north east] {\texttt{FileReceived}} ($(send2.north) + (0,5em)$);
+\draw ($(send2.north) + (0,6em)$) -- node [pos=1,above,anchor=south east] {\texttt{FileReceivedOk}} ($(recv2.north) + (0,9em)$);
+
+\node [right=2em of recv2] (send3) {\LARGE Сторона~1};
+\node [right=3em of send3] (recv3) {\LARGE Сторона~2};
+\node [anchor=north] at ($(send3.south east)!.5!(recv3.south west)$) {Без~подтверждения};
+\draw [-,very thick] (send3.north) -- ($(send3.north) + (0,30em)$);
+\draw [-,very thick] (recv3.north) -- ($(recv3.north) + (0,30em)$);
+\draw ($(send3.north) + (0,2em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{Disconnect}} ($(recv3.north) + (0,5em)$);
+\draw ($(send3.north) + (0,10em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{Disconnect}} ($(recv3.north) + (0,13em)$);
+\draw ($(send3.north) + (0,18em)$) -- node [pos=0.3,below,anchor=north west] {\texttt{Disconnect}} ($(recv3.north) + (0,21em)$);
+\draw [-,thin] ($(send3.north) + (0,2em)$) -- ($(send3.north) + (-2.5em,2em)$);
+\draw [-,thin] ($(send3.north) + (0,10em)$) -- ($(send3.north) + (-2.5em,10em)$);
+\draw [-,thin] ($(send3.north) + (0,18em)$) -- ($(send3.north) + (-2.5em,18em)$);
+\draw [-,thin] ($(send3.north) + (0,26em)$) -- ($(send3.north) + (-2.5em,26em)$);
+\draw [latex-latex] ($(send3.north) + (-2em,2em)$) -- node [above,rotate=90] {Таймаут} ($(send3.north) + (-2em,10em)$);
+\draw [latex-latex] ($(send3.north) + (-2em,10em)$) -- node [above,rotate=90] {Таймаут} ($(send3.north) + (-2em,18em)$);
+\draw [latex-latex] ($(send3.north) + (-2em,18em)$) -- node [above,rotate=90] {Таймаут} ($(send3.north) + (-2em,26em)$);
+
+\node [right=2em of recv3] (send4) {\LARGE Сторона~1};
+\node [right=3em of send4] (recv4) {\LARGE Сторона~2};
+\node [anchor=north] at ($(send4.south east)!.5!(recv4.south west)$) {По~таймауту};
+\draw [-,very thick] (send4.north) -- ($(send4.north) + (0,30em)$);
+\draw [-,very thick] (recv4.north) -- ($(recv4.north) + (0,30em)$);
+\draw ($(send4.north) + (0,2em)$) -- node [pos=0.2,below,anchor=north west] {Любой пакет} ($(recv4.north) + (0,5em)$);
+\draw ($(send4.north) + (0,10em)$) -- node [pos=0.2,below,anchor=north west] {Любой пакет} ($(recv4.north) + (0,13em)$);
+\draw ($(send4.north) + (0,18em)$) -- node [pos=0.2,below,anchor=north west] {Любой пакет} ($(recv4.north) + (0,21em)$);
+\draw ($(send4.north) + (0,26em)$) -- node [pos=0.2,below,anchor=north west] {\texttt{Disconnect}} ($(recv4.north) + (0,29em)$);
+\draw [-,thin] ($(send4.north) + (0,2em)$) -- ($(send4.north) + (-2.5em,2em)$);
+\draw [-,thin] ($(send4.north) + (0,10em)$) -- ($(send4.north) + (-2.5em,10em)$);
+\draw [-,thin] ($(send4.north) + (0,18em)$) -- ($(send4.north) + (-2.5em,18em)$);
+\draw [-,thin] ($(send4.north) + (0,26em)$) -- ($(send4.north) + (-2.5em,26em)$);
+\draw [latex-latex] ($(send4.north) + (-2em,2em)$) -- node [above,rotate=90] {Таймаут} ($(send4.north) + (-2em,10em)$);
+\draw [latex-latex] ($(send4.north) + (-2em,10em)$) -- node [above,rotate=90] {Таймаут} ($(send4.north) + (-2em,18em)$);
+\draw [latex-latex] ($(send4.north) + (-2em,18em)$) -- node [above,rotate=90] {Таймаут} ($(send4.north) + (-2em,26em)$);
+
+\node [anchor=south] at ($($(send1.north) + (0,30em)$)!.5!($(recv4.north) + (0,30em)$)$) {\Huge Логическое разъединение};
+\end{tikzpicture}
+\end{ESKDdrawing}
+\end{document}

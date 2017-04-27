@@ -1,0 +1,459 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{indentfirst}
+\usepackage{tikz}
+\usetikzlibrary{shapes.misc,shapes.geometric,calc,positioning}
+
+\usepackage{geometry}
+\geometry{left=3cm}
+\geometry{right=2cm}
+\geometry{top=2cm}
+\geometry{bottom=2cm}
+
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{titletoc}
+\newlength{\seclenght}
+\settowidth{\seclenght}{7. }
+\dottedcontents{section}[\the\seclenght]{}{\the\seclenght}{2mm}
+\newlength{\subseclenght}
+\settowidth{\subseclenght}{6.2. }
+\dottedcontents{subsection}[\the\subseclenght]{}{\the\subseclenght}{2mm}
+\newlength{\subsubseclenght}
+\settowidth{\subsubseclenght}{6.2.8. }
+\dottedcontents{subsubsection}[\the\subsubseclenght]{}{\the\subsubseclenght}{2mm}
+\newlength{\pagereflenght}
+\settowidth{\pagereflenght}{\pageref{LastPage}}
+\contentsmargin{\the\pagereflenght}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+\setcounter{tocdepth}{3}
+
+\usepackage{enumitem}
+\usepackage{lastpage}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\hrule\vspace{1em}
+\bf Московский государственный технический университет им. Н.Э.\,Баумана\\
+Кафедра <<Системы обработки информации и управления>>\\[1em]
+\hrule
+\end{center}
+
+\vfill
+
+\noindent УТВЕРЖДАЮ:\\[1em]
+\underline{\hspace{12em}} Галкин~В.\,А.\\[1em]
+<<\underline{\hspace{1em}}>> \underline{\hspace{6.5em}} 2017~г.
+
+\vfill\vfill
+
+\begin{center}
+\large Описание программы\\
+к~курсовой работе\\
+{\Large<<Локальная безадаптерная сеть>>}\\
+(вариант №\,26а)\\
+по~курсу {\Large<<Сетевые технологии в~АСОИУ>>}
+\end{center}
+
+\vfill\vfill\vfill
+
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}l}
+&ИСПОЛНИТЕЛИ:\\[1em]
+&\underline{\hspace{12em}} Лещев А.\,О., ИУ5-64\\[1em]
+&\underline{\hspace{12em}} Мельников К.\,И., ИУ5-64\\[1em]
+&<<\underline{\hspace{1em}}>> \underline{\hspace{6.5em}} 2017~г.\\
+\end{tabular*}
+ 
+\vfill
+
+\begin{center}
+Москва~--- 2017~г.\\[1em]
+\hrule
+\end{center}
+
+\end{titlepage}
+
+\setcounter{page}{2}
+\tableofcontents
+\clearpage
+
+\section{Общие сведения}
+Наименование программы: <<Локальная безадаптерная сеть>>. Основанием для~разработки является учебный план кафедры ИУ5 <<Системы обработки информации и управления>> МГТУ им.~Н.Э.\,Баумана на~6~семестр. Исполнителями являются студенты МГТУ им.~Н.Э.\,Баумана группы ИУ5-64 Лещев Артем Олегович и Мельников Константин Игоревич. Программа выполнена на~языке программирования C\# и работает под~управлением операционной системы Microsoft Windows версии 10 или выше.
+
+\section{Назначение разработки}
+Программа позволяет передавать файлы по~локальной сети с~возможностью докачки после восстановления прерванной связи, состоящей из~двух персональных компьютеров, соединённых через интерфейс RS-232C нуль-модемным кабелем.
+
+\section{Описание логической структуры}
+Логически программа состоит из трёх уровней:
+\begin{itemize}
+\item пользовательский уровень, реализующий логику передачи файлов;
+\item канальный уровень, составляющий кадр для~передачи по~локальной сети;
+\item физический уровень, передающий байты через интерфейс RS-232C.
+\end{itemize}
+\subsection{Алгоритмы передачи файла}
+\subsubsection{Алгоритм выбора папки}
+\begin{center}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=9em] (button) {Нажата кнопка\\<<Выбрать папку>>};
+\coordinate [right=3em of button] (lbutton);
+\node [below=1em of button,text width=8em] (open) {Открыть диалог\\выбора папки};
+\node [below=1em of open,diamond,aspect=3] (select) {Папка выбрана};
+\coordinate [left=1em of button] (lselect);
+\node [below=1em of select] (pin) {RTS~--- активен};
+\node [rounded rectangle,below=1em of pin] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (open);
+\draw (open) -- (select);
+\draw (select) -| node [above left,pos=0,draw=none] {Нет} (lselect) |- (bstart);
+\draw (select) -- node [right,draw=none] {Да} (pin);
+\draw (pin) -- (end);
+\end{tikzpicture}
+\end{center}
+
+\subsubsection{Алгоритм начала отправки файла}
+\begin{center}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=9em] (button) {Нажата кнопка\\<<Выбрать файл>>};
+\coordinate [right=3em of button] (lbutton);
+\node [below=1em of button,text width=14em] (open) {Открыть диалог\\выбора файла};
+\node [below=1em of open,diamond,aspect=3] (select) {Файл выбран};
+\coordinate [left=1em of button] (lselect);
+\coordinate [below=1em of select] (lr);
+\node [below=1em of lr,diamond,aspect=3,text width=13em] (ispin) {Нажата кнопка\\<<Отправить файл>>};
+\coordinate [left=3em of ispin] (lselect2);
+\node [below=1em of ispin,diamond,aspect=3] (button2) {DSR и CTS активны};
+\node [below=1em of button2] (pin) {RTS~--- активен};
+\coordinate [right=1em of ispin] (lbutton2);
+\node [below=1em of pin] (pkg) {Отправить данные о~файле};
+\node [rounded rectangle,below=1em of pkg] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (open);
+\draw (open) -- (select);
+\draw (select) -| node [above left,pos=0,draw=none] {Нет} (lselect) |- (bstart);
+\draw (select) -- node [right,draw=none] {Да} (lr);
+\draw (lr) -- (ispin);
+\draw (ispin) -- node [above left,pos=0,draw=none] {Нет} (lselect2) |- (lr);
+\draw (ispin) -- node [right,draw=none] {Да} (button2);
+\draw (button2) -| node [above right,pos=0,draw=none] {Нет} (lbutton2) |- (lr);
+\draw (button2) -- node [right,draw=none] {Да} (pin);
+\draw (pin) -- (pkg);
+\draw (pkg) -- (end);
+\end{tikzpicture}
+\end{center}
+
+\subsubsection{Алгоритм начала получения файла}
+\begin{center}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=8em] (button) {Получены\\данные о~файле};
+\coordinate [right=4em of button] (lbutton);
+\node [below=1em of button,diamond,aspect=3] (select) {Папка выбрана};
+\node [below=1em of select] (file) {Открыть (создать) файл};
+\node [below=1em of file] (chunk) {Запросить часть файла};
+\node [right=4em of file,text width=6em] (error) {Отправить\\сообщение\\об~ошибке};
+\coordinate [below=1em of chunk] (lend);
+\node [rounded rectangle,below=1em of lend] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (select);
+\draw (select) -| node [above right,pos=0,draw=none] {Нет} (error);
+\draw (select) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (chunk);
+\draw (chunk) -- (lend);
+\draw (error) |- (lend);
+\draw (lend) -- (end);
+\end{tikzpicture}
+\end{center}
+
+\subsubsection{Алгоритм отправки части файла}
+\begin{center}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=8em] (button) {Получен запрос\\части файла};
+\coordinate [right=3em of button] (lbutton);
+\node [below=1em of button] (file) {Отправить часть файла};
+\node [rounded rectangle,below=1em of file] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (end);
+\end{tikzpicture}
+\end{center}
+
+\subsubsection{Алгоритм получения части файла}
+\begin{center}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=9em] (button) {Получена\\часть файла};
+\coordinate [right=3em of button] (lbutton);
+\node [below=1em of button] (file) {Сохранить часть файла};
+\node [below=1em of file,diamond,aspect=3,text width=9em] (rec) {Файл получен\\полностью};
+\node [below=1em of rec] (kv) {Отправить квитанцию};
+\node [right=1em of kv] (req) {Запросить часть файла};
+\coordinate [below=1em of kv] (lend);
+\node [rounded rectangle,below=1em of lend] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (rec);
+\draw (rec) -| node [above right,pos=0,draw=none] {Нет} (req);
+\draw (rec) -- node [right,draw=none] {Да} (kv);
+\draw (kv) -- (lend);
+\draw (req) |- (lend);
+\draw (lend) -- (end);
+\end{tikzpicture}
+\end{center}
+
+\subsubsection{Алгоритм завершения передачи файла}
+\begin{center}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,baseline=0em]
+\node [rounded rectangle] (start) {Начало};
+\coordinate [below=1em of start] (bstart);
+\node [below=1em of bstart,diamond,aspect=3,text width=8em] (button) {Получена\\квитанция};
+\coordinate [right=3em of button] (lbutton);
+\node [below=1em of button] (file) {RTS~--- неактивен};
+\node [rounded rectangle,below=1em of file] (end) {Конец};
+
+\draw (start) -- (bstart);
+\draw (bstart) -- (button);
+\draw (button) -- node [above right,pos=0,draw=none] {Нет} (lbutton) |- (bstart);
+\draw (button) -- node [right,draw=none] {Да} (file);
+\draw (file) -- (end);
+\end{tikzpicture}
+\end{center}
+
+\section{Используемые технические средства}
+Программа должна работать на~IBM-совместимом персональном компьютере следующей конфигурации:
+\begin{itemize}
+\item Центральный процессор с~частотой 1~ГГц или быстрее;
+\item Объём оперативной памяти от~4~ГБ;
+\item Жёсткий диск объёмом от~20~ГБ и свободным пространством минимум 100~МБ;
+\item Графическая карта, поддерживающая DirectX~9 или новее с~драйвером WDDM~1.0;
+\item Монитор разрешением от~$800\times600$~пикселей;
+\item Операционная система Microsoft Windows версии 10 или новее.
+\end{itemize}
+Для~работы программы требуются два персональных компьютера данной конфигурации, соединенных нуль-модемным кабелем через интерфейс RS-232C, либо (для~тестирования) один персональный компьютер данной конфигурации с~настроенным виртуальным нуль-модемным кабелем.
+
+\section{Входные и выходные данные}
+\subsection{Входные данные}
+Входными данными является двоичный файл на~передающем персональном компьютере.
+
+\subsection{Выходные данные}
+Выходными данными является двоичный файл в~заданной папке на~принимающем персональном компьютере.
+
+\section{Спецификация данных}
+\subsection{Формат кадра}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Стартовый байт	&	\texttt{byte}	&	1	&	\texttt{0xFF}\\\hline
+Контрольная сумма	&	\texttt{uint}	&	4	&	$\sum_{i=1}^{m}\mathtt{newPacket}[i]$\\\hline
+Пакет	&	\texttt{byte[]}	&	$m$	&	\texttt{newPacket}\\\hline
+Стоповый байт	&	\texttt{byte}	&	1	&	\texttt{0xFF}\\\hline
+\end{tabular}
+\end{center}
+
+\subsection{Форматы пакетов}
+\subsubsection{Пакет данных о~файле}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x00}\\\hline
+Имя файла	&	\texttt{string}	&	$k + \lfloor\log_{128}k\rfloor + 1$	&	\texttt{fileDialog.SafeFileName}\\\hline
+Длина файла	&	\texttt{long}	&	8	&	\texttt{fileStream.Length}\\\hline
+Контрольная сумма	&	\texttt{byte[]}	&	64	&	$\mathrm{SHA512}(\mathtt{fileStream})$\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет неготовности к~получению файла}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x01}\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет запроса части файла}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x02}\\\hline
+Позиция	&	\texttt{long}	&	8	&	\texttt{fileStream.Length}\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет части файла}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x03}\\\hline
+Позиция	&	\texttt{long}	&	8	&	Позиция в~файле\\\hline
+Размер части	&	\texttt{short}	&	2	&	$n$\\\hline
+Часть файла	&	\texttt{byte[]}	&	$n$	&	Данные\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет квитанции о~получении файла}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x04}\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет квитанции о~завершении передачи}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x05}\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет разрыва соединения}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x06}\\\hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Пакет квитанции о~разрыве соединения}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Наименование поля	&	Тип поля	&	Размер поля (в~байтах)	&	Значение\\\hline
+Тип пакета	&	\texttt{byte}	&	1	&	\texttt{0x07}\\\hline
+\end{tabular}
+\end{center}
+
+\section{Спецификация функций и классов}
+\begin{enumerate}[noitemsep]
+\item \texttt{T:iu5nt.App}~--- основной класс приложения, запускает окно программы.
+\item \texttt{M:iu5nt.App.InitializeComponent}~--- стандартный метод инициализации графического интерфейса.
+\item \texttt{M:iu5nt.App.Main}~--- станадртный метод входа в~программу.
+\item \texttt{T:iu5nt.DataLink}~--- класс, реализующий канальный уровень.
+\item \texttt{F:iu5nt.DataLink.currentPacket}~--- текущий передаваемый пакет.
+\item \texttt{F:iu5nt.DataLink.checkSumm}~--- контрольная сумма передаваемого пакета.
+\item \texttt{F:iu5nt.DataLink.length}~--- длина передаваемого пакета.
+\item \texttt{F:iu5nt.DataLink.recievedPacket}~--- получаемый пакет.
+\item \texttt{F:iu5nt.DataLink.recievedPacketBuffer}~--- биты получаемого пакета.
+\item \texttt{F:iu5nt.DataLink.debugBuffer}~--- отладочный буфер получаемых битов.
+\item \texttt{F:iu5nt.DataLink.firstTrigger}~--- найден ли стартовый байт.
+\item \texttt{F:iu5nt.DataLink.secondTrigger}~--- найден ли стоповый байт.
+\item \texttt{F:iu5nt.DataLink.screenTrigger}~--- был ли удалён экранирующий байт.
+\item \texttt{F:iu5nt.DataLink.firstTPosition}~--- длина полученного пакета без~стартового и стопового байтов.
+\item \texttt{F:iu5nt.DataLink.cleanerTimer}~--- таймер очистки буфера получаемого пакета.
+\item \texttt{T:iu5nt.DataLink.RecieveMEthod}~--- тип обработчика приёма пакета.
+\item \texttt{E:iu5nt.DataLink.OnRecieve}~--- событие приёма пакета.
+\item \texttt{M:iu5nt.DataLink.\#cctor}~--- статический конструктор класса, реализующего канальный уровень.
+\item \texttt{M:iu5nt.DataLink.TimerListener(System.Object,\\System.Timers.ElapsedEventArgs)}~--- метод очистки буфера получаемого пакета.
+\item \texttt{M:iu5nt.DataLink.RecievePacket(System.Collections.BitArray)}~--- обработчик принятых из~порта битов.
+\item \texttt{M:iu5nt.DataLink.SendPacket(System.Byte[])}~--- метод отправки пакета.
+\item \texttt{T:iu5nt.Physical}~--- класс, реализующий физический уровень.
+\item \texttt{F:iu5nt.Physical.\_serialPort}~--- объект COM-порта.
+\item \texttt{F:iu5nt.Physical.connected}~--- открыт ли COM-порт.
+\item \texttt{F:iu5nt.Physical.failList}~--- список синдромов ошибки циклического кода.
+\item \texttt{T:iu5nt.Physical.PortListener}~--- тип обработчика изменения состояния контактов COM-порта.
+\item \texttt{E:iu5nt.Physical.OnCheck}~--- событие изменения состояния контактов COM-порта.
+\item \texttt{E:iu5nt.Physical.UICheck}~--- событие внешного изменения состояния контактов COM-порта.
+\item \texttt{M:iu5nt.Physical.SetRts(System.Boolean)}~--- метод изменения состояния RTS.
+\item \texttt{M:iu5nt.Physical.StatusCheck(System.Object,\\System.IO.Ports.SerialPinChangedEventArgs)}~--- обработчик внешнего изменения состояния контактов COM-порта.
+\item \texttt{M:iu5nt.Physical.Connect(System.String)}~--- метод открытия COM-порта.
+\item \texttt{M:iu5nt.Physical.Disconnect}~--- метод закрытия COM-порта.
+\item \texttt{M:iu5nt.Physical.DataReceivedHandler(System.Object,\\System.IO.Ports.SerialDataReceivedEventArgs)}~--- обработчик получения данных из~COM-порта.
+\item \texttt{M:iu5nt.Physical.Learning}~--- метод создания списка синдромов ошибки циклического кода.
+\item \texttt{M:iu5nt.Physical.DeCycle(System.Byte[])}~--- метод декодирования циклического кода.
+\item \texttt{M:iu5nt.Physical.Send(System.Collections.BitArray)}~--- метод отправки битов в~порт.
+\item \texttt{M:iu5nt.Physical.BitArrayToByteArray(System.Collections.BitArray)}~--- метод преобразования массива битов в~массив байтов.
+\item \texttt{M:iu5nt.Physical.GetCycled(System.Collections.BitArray)}~--- метод кодирования циклическим кодом.
+\item \texttt{T:iu5nt.MainWindow}~--- класс окна программы.
+\item \texttt{F:iu5nt.MainWindow.ConnectionBox}~--- группа компонентов управления соединением.
+\item \texttt{F:iu5nt.MainWindow.PortsList}~--- список портов.
+\item \texttt{F:iu5nt.MainWindow.OpenButton}~--- кнопка открытия порта.
+\item \texttt{F:iu5nt.MainWindow.CloseButton}~--- кнопка закрытия порта.
+\item \texttt{F:iu5nt.MainWindow.DtrIndicator}~--- индикатор состояния DTR.
+\item \texttt{F:iu5nt.MainWindow.DsrIndicator}~--- индикатор состояния DSR.
+\item \texttt{F:iu5nt.MainWindow.RtsIndicator}~--- индикатор состояния RTS.
+\item \texttt{F:iu5nt.MainWindow.CtsIndicator}~--- индикатор состояния CTS.
+\item \texttt{F:iu5nt.MainWindow.FileBox}~--- группа компонентов отправки файла.
+\item \texttt{F:iu5nt.MainWindow.FileName}~--- текстовое поле для~отображения названия выбранного файла.
+\item \texttt{F:iu5nt.MainWindow.SelectFile}~--- кнопка выбора файла.
+\item \texttt{F:iu5nt.MainWindow.SendFile}~--- кнопка отправки файла.
+\item \texttt{F:iu5nt.MainWindow.DirectoryBox}~--- группа компонентов выбора папки.
+\item \texttt{F:iu5nt.MainWindow.DirectoryName}~--- текстовое поле для~отображения названия выбранной папки.
+\item \texttt{F:iu5nt.MainWindow.SelectDirectory}~--- кнопка выбора папки.
+\item \texttt{F:iu5nt.MainWindow.StatusText}~--- текстовое поле для~отображения текущего состояния программы.
+\item \texttt{F:iu5nt.MainWindow.ProgressBar}~--- индикатор передачи файла.
+\item \texttt{F:iu5nt.MainWindow.DisconnectButton}~--- кнопка разрыва логического соединения.
+\item \texttt{F:iu5nt.MainWindow.fileDialog}~--- диалоговое окно выбора файла.
+\item \texttt{F:iu5nt.MainWindow.folderDialog}~--- диалоговое окно выбора папки.
+\item \texttt{F:iu5nt.MainWindow.folderReady}~--- выбрана ли папка.
+\item \texttt{F:iu5nt.MainWindow.sending}~--- режим передачи.
+\item \texttt{F:iu5nt.MainWindow.fileStream}~--- открытый файл.
+\item \texttt{F:iu5nt.MainWindow.fileName}~--- имя файла.
+\item \texttt{F:iu5nt.MainWindow.hashName}~--- контрольная сумма файла.
+\item \texttt{F:iu5nt.MainWindow.filePath}~--- путь к~файлу.
+\item \texttt{F:iu5nt.MainWindow.tempPath}~--- путь к~временному файлу.
+\item \texttt{F:iu5nt.MainWindow.length}~--- длина файла.
+\item \texttt{F:iu5nt.MainWindow.chunkSize}~--- максимальный размер части файла.
+\item \texttt{F:iu5nt.MainWindow.timer}~--- таймер ожидания ответа.
+\item \texttt{F:iu5nt.MainWindow.retries}~--- количество попыток отправки пакета.
+\item \texttt{F:iu5nt.MainWindow.maxRetries}~--- максимальное количество попыток отправки пакета.
+\item \texttt{F:iu5nt.MainWindow.lastPacket}~--- последний отправленный пакет.
+\item \texttt{M:iu5nt.MainWindow.\#ctor}~--- конструктор окна программы.
+\item \texttt{M:iu5nt.MainWindow.OpenButton\_Click(System.Object,\\System.Windows.RoutedEventArgs)}~--- обработчик нажатия на~кнопку открытия порта.
+\item \texttt{M:iu5nt.MainWindow.CloseButton\_Click(System.Object,\\System.Windows.RoutedEventArgs)}~--- обработчик нажатия на~кнопку закрытия порта.
+\item \texttt{M:iu5nt.MainWindow.SelectFile\_Click(System.Object,\\System.Windows.RoutedEventArgs)}~--- обработчик нажатия на~кнопку выбора файла.
+\item \texttt{M:iu5nt.MainWindow.SelectDirectory\_Click(System.Object,\\System.Windows.RoutedEventArgs)}~--- обработчик нажатия на~кнопку выбора папки.
+\item \texttt{M:iu5nt.MainWindow.SendFile\_Click(System.Object,\\System.Windows.RoutedEventArgs)}~--- обработчик нажатия на~кнопку отправки файла.
+\item \texttt{M:iu5nt.MainWindow.DisconnectButton\_Click(System.Object,\\System.Windows.RoutedEventArgs)}~--- обработчик нажатия на~кнопку разрыва логического соединения.
+\item \texttt{M:iu5nt.MainWindow.InvokeHandler(System.Byte[],System.Boolean)}~--- промежуточный обработчик приёма пакета.
+\item \texttt{M:iu5nt.MainWindow.ReceiveMessage(System.Byte[],System.Boolean)}~--- обработчик приёма пакета.
+\item \texttt{M:iu5nt.MainWindow.ParseFileName(System.IO.BinaryReader)}~--- обработчик пакета данных о~файле.
+\item \texttt{M:iu5nt.MainWindow.RequestFileChunk}~--- метод для~запроса следующей части файла.
+\item \texttt{M:iu5nt.MainWindow.SendFileChunk(System.IO.BinaryReader)}~--- обработчик пакета запроса части файла.
+\item \texttt{M:iu5nt.MainWindow.SaveFileChunk(System.IO.BinaryReader)}~--- обработчик пакета части файла.
+\item \texttt{M:iu5nt.MainWindow.SendPacket(System.Byte[])}~--- метод отправки пакета.
+\item \texttt{M:iu5nt.MainWindow.ResendPacket(System.Object,System.EventArgs)}~--- обработчик таймера повторной отправки пакета.
+\item \texttt{M:iu5nt.MainWindow.PortCheck(System.Boolean,System.Boolean,\\System.Boolean,System.Boolean)}~--- прокси-обработчик изменения состояния контактов COM-порта.
+\item \texttt{M:iu5nt.MainWindow.RealPortCheck(System.Boolean,System.Boolean,\\System.Boolean,System.Boolean)}~--- обработчик изменения состояния контактов COM-порта.
+\item \texttt{M:iu5nt.MainWindow.ExceptionHandler(System.Object,\\System.Windows.Threading.DispatcherUnhandledExceptionEventArgs)}~--- обработчик неперехваченных исключений.
+\item \texttt{M:iu5nt.MainWindow.Dispose}~--- обработчик закрытия окна для~очистки ресурсов.
+\item \texttt{T:iu5nt.MainWindow.MessageType}~--- перечисление возможных типов пакетов.
+\item \texttt{M:iu5nt.MainWindow.InitializeComponent}~--- стандартный метод инициализации компонентов.
+\end{enumerate}
+
+\end{document}

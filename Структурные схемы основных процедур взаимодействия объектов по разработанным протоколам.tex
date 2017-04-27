@@ -1,0 +1,179 @@
+\documentclass[russian,utf8,a2paper,simple,nocolumnxxvi,vpadding=0mm]{eskdgraph}
+\usepackage{cmap}
+\usepackage{tikz}
+\usetikzlibrary{shapes.misc,shapes.geometric,calc,positioning}
+
+\newcommand{\No}{\textnumero}
+
+\ESKDdepartment{МГТУ им. Н.Э.\,Баумана}
+\ESKDcompany{Кафедра ИУ5\\Группа ИУ5-64}
+
+\ESKDsignature{Локальная безадаптерная сеть}
+\ESKDtitle{\ESKDfontIII Структурные схемы основных процедур взаимодействия объектов по~разработанным протоколам}
+\ESKDmaterial{\ESKDfontIII Курсовая работа по~курсу\\<<Сетевые технологии в~АСОИУ>>}
+\ESKDauthor{Лещев А.О.}
+\ESKDcolumnXIfII{\ESKDfontII Мельников К.И.}
+\renewcommand{\ESKDcolumnXfIIname}{}
+\ESKDapprovedBy{Галкин В.А.}
+\ESKDdate{2017/04/25}
+
+\renewcommand{\ESKDcolumnXfIIIname}{}
+\renewcommand{\ESKDcolumnXfVname}{}
+\ESKDcolumnIX{\ESKDfontIII\ESKDtheDepartment\\\ESKDtheCompany}
+
+\begin{document}
+\setlength{\hsize}{\ESKDframeW}
+\begin{ESKDdrawing}\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\large,baseline=0em]
+\node (pol1) {Пользовательский};
+\node [anchor=north east,yshift=-3em] (kan1) at (pol1.south east) {Канальный};
+\node [anchor=north east,yshift=-3em] (phy1) at (kan1.south east) {Физический};
+\draw [-,very thick] (pol1.east) -- ($(pol1.east) + (13em,0)$);
+\draw [-,very thick] (kan1.east) -- ($(kan1.east) + (13em,0)$);
+\draw [-,very thick] (phy1.east) -- ($(phy1.east) + (13em,0)$);
+\node [right=40em of pol1] (pol2) {Пользовательский};
+\node [anchor=north west,yshift=-3em] (kan2) at (pol2.south west) {Канальный};
+\node [anchor=north west,yshift=-3em] (phy2) at (kan2.south west) {Физический};
+\draw [-,very thick] (pol2.west) -- ($(pol2.west) + (-13em,0)$);
+\draw [-,very thick] (kan2.west) -- ($(kan2.west) + (-13em,0)$);
+\draw [-,very thick] (phy2.west) -- ($(phy2.west) + (-13em,0)$);
+\node [anchor=south] at ($(pol1.north)!.5!(pol2.north)$) {\Huge Успешное установление соединения};
+\draw ($(pol1.east) + (6em,0)$) -- node [left,text width=5em] {Передача пакета \texttt{FileName}} ($(kan1.east) + (6em,0)$);
+\draw ($(kan1.east) + (6em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (6em,0)$);
+\draw ($(phy1.east) + (6em,0)$) -- ($(phy1.east) + (6em,-4em)$) -- node [above] {Передача битов} ($(phy2.west) + (-6em,-4em)$) -- ($(phy2.west) + (-6em,0)$);
+\draw ($(phy2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan2.west) + (-6em,0)$);
+\draw ($(kan2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение пакета \texttt{FileName}} ($(pol2.west) + (-6em,0)$);
+\draw ($(pol2.west) + (-8em,0)$) -- node [left,text width=7em] {Передача пакета \texttt{FileRequest}} ($(kan2.west) + (-8em,0)$);
+\draw ($(kan2.west) + (-8em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy2.west) + (-8em,0)$);
+\draw ($(phy2.west) + (-8em,0)$) -- ($(phy2.west) + (-8em,-2em)$) -- node [above] {Передача битов} ($(phy1.east) + (8em,-2em)$) -- ($(phy1.east) + (8em,0)$);
+\draw ($(phy1.east) + (8em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan1.east) + (8em,0)$);
+\draw ($(kan1.east) + (8em,0)$) -- node [right,text width=7em] {Получение пакета \texttt{FileRequest}} ($(pol1.east) + (8em,0)$);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\large,baseline=0em]
+\node (pol1) {Пользовательский};
+\node [anchor=north east,yshift=-3em] (kan1) at (pol1.south east) {Канальный};
+\node [anchor=north east,yshift=-3em] (phy1) at (kan1.south east) {Физический};
+\draw [-,very thick] (pol1.east) -- ($(pol1.east) + (13em,0)$);
+\draw [-,very thick] (kan1.east) -- ($(kan1.east) + (13em,0)$);
+\draw [-,very thick] (phy1.east) -- ($(phy1.east) + (13em,0)$);
+\node [right=40em of pol1] (pol2) {Пользовательский};
+\node [anchor=north west,yshift=-3em] (kan2) at (pol2.south west) {Канальный};
+\node [anchor=north west,yshift=-3em] (phy2) at (kan2.south west) {Физический};
+\draw [-,very thick] (pol2.west) -- ($(pol2.west) + (-13em,0)$);
+\draw [-,very thick] (kan2.west) -- ($(kan2.west) + (-13em,0)$);
+\draw [-,very thick] (phy2.west) -- ($(phy2.west) + (-13em,0)$);
+\node [anchor=south] at ($(pol1.north)!.5!(pol2.north)$) {\Huge Неуспешное установление соединения};
+\draw ($(pol1.east) + (6em,0)$) -- node [left,text width=5em] {Передача пакета \texttt{FileName}} ($(kan1.east) + (6em,0)$);
+\draw ($(kan1.east) + (6em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (6em,0)$);
+\draw ($(phy1.east) + (6em,0)$) -- ($(phy1.east) + (6em,-4em)$) -- node [above] {Передача битов} ($(phy2.west) + (-6em,-4em)$) -- ($(phy2.west) + (-6em,0)$);
+\draw ($(phy2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan2.west) + (-6em,0)$);
+\draw ($(kan2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение пакета \texttt{FileName}} ($(pol2.west) + (-6em,0)$);
+\draw ($(pol2.west) + (-8em,0)$) -- node [left,text width=10em] {Передача пакета \texttt{ReceiveNotReady}} ($(kan2.west) + (-8em,0)$);
+\draw ($(kan2.west) + (-8em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy2.west) + (-8em,0)$);
+\draw ($(phy2.west) + (-8em,0)$) -- ($(phy2.west) + (-8em,-2em)$) -- node [above] {Передача битов} ($(phy1.east) + (8em,-2em)$) -- ($(phy1.east) + (8em,0)$);
+\draw ($(phy1.east) + (8em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan1.east) + (8em,0)$);
+\draw ($(kan1.east) + (8em,0)$) -- node [right,text width=10em] {Получение пакета \texttt{ReceiveNotReady}} ($(pol1.east) + (8em,0)$);
+\end{tikzpicture}\hfill\phantom{}\\[5em]
+
+\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\large,baseline=0em]
+\node (pol1) {Пользовательский};
+\node [anchor=north east,yshift=-3em] (kan1) at (pol1.south east) {Канальный};
+\node [anchor=north east,yshift=-3em] (phy1) at (kan1.south east) {Физический};
+\draw [-,very thick] (pol1.east) -- ($(pol1.east) + (13em,0)$);
+\draw [-,very thick] (kan1.east) -- ($(kan1.east) + (13em,0)$);
+\draw [-,very thick] (phy1.east) -- ($(phy1.east) + (13em,0)$);
+\node [right=40em of pol1] (pol2) {Пользовательский};
+\node [anchor=north west,yshift=-3em] (kan2) at (pol2.south west) {Канальный};
+\node [anchor=north west,yshift=-3em] (phy2) at (kan2.south west) {Физический};
+\draw [-,very thick] (pol2.west) -- ($(pol2.west) + (-13em,0)$);
+\draw [-,very thick] (kan2.west) -- ($(kan2.west) + (-13em,0)$);
+\draw [-,very thick] (phy2.west) -- ($(phy2.west) + (-13em,0)$);
+\node [anchor=south] at ($(pol1.north)!.5!(pol2.north)$) {\Huge Передача части файла};
+\draw ($(pol1.east) + (6em,0)$) -- node [left,text width=7em] {Передача пакета \texttt{FileRequest}} ($(kan1.east) + (6em,0)$);
+\draw ($(kan1.east) + (6em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (6em,0)$);
+\draw ($(phy1.east) + (6em,0)$) -- ($(phy1.east) + (6em,-4em)$) -- node [above] {Передача битов} ($(phy2.west) + (-6em,-4em)$) -- ($(phy2.west) + (-6em,0)$);
+\draw ($(phy2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan2.west) + (-6em,0)$);
+\draw ($(kan2.west) + (-6em,0)$) -- node [right,text width=7em] {Получение пакета \texttt{FileRequest}} ($(pol2.west) + (-6em,0)$);
+\draw ($(pol2.west) + (-8em,0)$) -- node [left,text width=6em] {Передача пакета \texttt{FileChunk}} ($(kan2.west) + (-8em,0)$);
+\draw ($(kan2.west) + (-8em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy2.west) + (-8em,0)$);
+\draw ($(phy2.west) + (-8em,0)$) -- ($(phy2.west) + (-8em,-2em)$) -- node [above] {Передача битов} ($(phy1.east) + (8em,-2em)$) -- ($(phy1.east) + (8em,0)$);
+\draw ($(phy1.east) + (8em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan1.east) + (8em,0)$);
+\draw ($(kan1.east) + (8em,0)$) -- node [right,text width=6em] {Получение пакета \texttt{FileChunk}} ($(pol1.east) + (8em,0)$);
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\large,baseline=0em]
+\node (pol1) {Пользовательский};
+\node [anchor=north east,yshift=-3em] (kan1) at (pol1.south east) {Канальный};
+\node [anchor=north east,yshift=-3em] (phy1) at (kan1.south east) {Физический};
+\draw [-,very thick] (pol1.east) -- ($(pol1.east) + (13em,0)$);
+\draw [-,very thick] (kan1.east) -- ($(kan1.east) + (13em,0)$);
+\draw [-,very thick] (phy1.east) -- ($(phy1.east) + (13em,0)$);
+\node [right=40em of pol1] (pol2) {Пользовательский};
+\node [anchor=north west,yshift=-3em] (kan2) at (pol2.south west) {Канальный};
+\node [anchor=north west,yshift=-3em] (phy2) at (kan2.south west) {Физический};
+\draw [-,very thick] (pol2.west) -- ($(pol2.west) + (-13em,0)$);
+\draw [-,very thick] (kan2.west) -- ($(kan2.west) + (-13em,0)$);
+\draw [-,very thick] (phy2.west) -- ($(phy2.west) + (-13em,0)$);
+\node [anchor=south] at ($(pol1.north)!.5!(pol2.north)$) {\Huge Завершение передачи файла};
+\draw ($(pol1.east) + (6em,0)$) -- node [left,text width=7em] {Передача пакета \texttt{FileReceived}} ($(kan1.east) + (6em,0)$);
+\draw ($(kan1.east) + (6em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (6em,0)$);
+\draw ($(phy1.east) + (6em,0)$) -- ($(phy1.east) + (6em,-4em)$) -- node [above] {Передача битов} ($(phy2.west) + (-6em,-4em)$) -- ($(phy2.west) + (-6em,0)$);
+\draw ($(phy2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan2.west) + (-6em,0)$);
+\draw ($(kan2.west) + (-6em,0)$) -- node [right,text width=7em] {Получение пакета \texttt{FileReceived}} ($(pol2.west) + (-6em,0)$);
+\draw ($(pol2.west) + (-8em,0)$) -- node [left,text width=9em] {Передача пакета \texttt{FileReceivedOk}} ($(kan2.west) + (-8em,0)$);
+\draw ($(kan2.west) + (-8em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy2.west) + (-8em,0)$);
+\draw ($(phy2.west) + (-8em,0)$) -- ($(phy2.west) + (-8em,-2em)$) -- node [above] {Передача битов} ($(phy1.east) + (8em,-2em)$) -- ($(phy1.east) + (8em,0)$);
+\draw ($(phy1.east) + (8em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan1.east) + (8em,0)$);
+\draw ($(kan1.east) + (8em,0)$) -- node [right,text width=9em] {Получение пакета \texttt{FileReceivedOk}} ($(pol1.east) + (8em,0)$);
+\end{tikzpicture}\hfill\phantom{}\\[5em]
+
+\hfill
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\large,baseline=0em]
+\node (pol1) {Пользовательский};
+\node [anchor=north east,yshift=-3em] (kan1) at (pol1.south east) {Канальный};
+\node [anchor=north east,yshift=-3em] (phy1) at (kan1.south east) {Физический};
+\draw [-,very thick] (pol1.east) -- ($(pol1.east) + (13em,0)$);
+\draw [-,very thick] (kan1.east) -- ($(kan1.east) + (13em,0)$);
+\draw [-,very thick] (phy1.east) -- ($(phy1.east) + (13em,0)$);
+\node [right=40em of pol1] (pol2) {Пользовательский};
+\node [anchor=north west,yshift=-3em] (kan2) at (pol2.south west) {Канальный};
+\node [anchor=north west,yshift=-3em] (phy2) at (kan2.south west) {Физический};
+\draw [-,very thick] (pol2.west) -- ($(pol2.west) + (-13em,0)$);
+\draw [-,very thick] (kan2.west) -- ($(kan2.west) + (-13em,0)$);
+\draw [-,very thick] (phy2.west) -- ($(phy2.west) + (-13em,0)$);
+\node [anchor=south] at ($(pol1.north)!.5!(pol2.north)$) {\Huge Успешное разъединение соединения};
+\draw ($(pol1.east) + (6em,0)$) -- node [left,text width=6em] {Передача пакета \texttt{Disconnect}} ($(kan1.east) + (6em,0)$);
+\draw ($(kan1.east) + (6em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (6em,0)$);
+\draw ($(phy1.east) + (6em,0)$) -- ($(phy1.east) + (6em,-4em)$) -- node [above] {Передача битов} ($(phy2.west) + (-6em,-4em)$) -- ($(phy2.west) + (-6em,0)$);
+\draw ($(phy2.west) + (-6em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan2.west) + (-6em,0)$);
+\draw ($(kan2.west) + (-6em,0)$) -- node [right,text width=6em] {Получение пакета \texttt{Disconnect}} ($(pol2.west) + (-6em,0)$);
+\draw ($(pol2.west) + (-8em,0)$) -- node [left,text width=8em] {Передача пакета \texttt{DisconnectOk}} ($(kan2.west) + (-8em,0)$);
+\draw ($(kan2.west) + (-8em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy2.west) + (-8em,0)$);
+\draw ($(phy2.west) + (-8em,0)$) -- ($(phy2.west) + (-8em,-2em)$) -- node [above] {Передача битов} ($(phy1.east) + (8em,-2em)$) -- ($(phy1.east) + (8em,0)$);
+\draw ($(phy1.east) + (8em,0)$) -- node [right,text width=5em] {Получение кадра} ($(kan1.east) + (8em,0)$);
+\draw ($(kan1.east) + (8em,0)$) -- node [right,text width=8em] {Получение пакета \texttt{DisconnectOk}} ($(pol1.east) + (8em,0)$);
+\end{tikzpicture}\hfill\phantom{}
+\begin{tikzpicture}[every node/.style={align=center},-latex,font=\large,baseline=0em]
+\node (pol1) {Пользовательский};
+\node [anchor=north east,yshift=-3em] (kan1) at (pol1.south east) {Канальный};
+\node [anchor=north east,yshift=-3em] (phy1) at (kan1.south east) {Физический};
+\draw [-,very thick] (pol1.east) -- ($(pol1.east) + (27em,0)$);
+\draw [-,very thick] (kan1.east) -- ($(kan1.east) + (27em,0)$);
+\draw [-,very thick] (phy1.east) -- ($(phy1.east) + (27em,0)$);
+\node [anchor=south west] at ($(pol1.east)!.5!($(pol1.east) + (27em,0)$)$) {\Huge Обрыв соединения};
+\draw ($(pol1.east) + (6em,0)$) -- node [left,text width=5em] {Передача пакета} ($(kan1.east) + (6em,0)$);
+\draw ($(kan1.east) + (6em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (6em,0)$);
+\draw ($(phy1.east) + (6em,0)$) -- ($(phy1.east) + (6em,-6em)$) -- node [above] {Передача битов} ($(phy1.east) + (18em,-6em)$);
+\node [draw,anchor=west] at ($(phy1.east) + (18em,-6em)$) {Недоступность физического канала};
+\draw ($(pol1.east) + (14em,0)$) -- node [left,text width=5em] {Передача пакета} ($(kan1.east) + (14em,0)$);
+\draw ($(kan1.east) + (14em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (14em,0)$);
+\draw ($(phy1.east) + (14em,0)$) -- ($(phy1.east) + (14em,-4em)$) -- node [above] {Передача битов} ($(phy1.east) + (26em,-4em)$);
+\node [draw,anchor=west] at ($(phy1.east) + (26em,-4em)$) {Недоступность физического канала};
+\draw ($(pol1.east) + (22em,0)$) -- node [left,text width=5em] {Передача пакета} ($(kan1.east) + (22em,0)$);
+\draw ($(kan1.east) + (22em,0)$) -- node [left,text width=5em] {Передача кадра} ($(phy1.east) + (22em,0)$);
+\draw ($(phy1.east) + (22em,0)$) -- ($(phy1.east) + (22em,-2em)$) -- node [above] {Передача битов} ($(phy1.east) + (34em,-2em)$);
+\node [draw,anchor=west] at ($(phy1.east) + (34em,-2em)$) {Недоступность физического канала};
+\end{tikzpicture}\hfill\phantom{}
+
+\end{ESKDdrawing}
+\end{document}

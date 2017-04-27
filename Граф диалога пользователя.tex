@@ -1,0 +1,58 @@
+\documentclass[russian,utf8,a2paper,simple,nocolumnxxvi,vpadding=0mm]{eskdgraph}
+\usepackage{cmap}
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning}
+
+\newcommand{\No}{\textnumero}
+
+\ESKDdepartment{МГТУ им. Н.Э.\,Баумана}
+\ESKDcompany{Кафедра ИУ5\\Группа ИУ5-64}
+
+\ESKDsignature{Локальная безадаптерная сеть}
+\ESKDtitle{Граф диалога пользователя}
+\ESKDmaterial{\ESKDfontIII Курсовая работа по~курсу\\<<Сетевые технологии в~АСОИУ>>}
+\ESKDauthor{Лещев А.О.}
+\ESKDcolumnXIfII{\ESKDfontII Мельников К.И.}
+\renewcommand{\ESKDcolumnXfIIname}{}
+\ESKDapprovedBy{Галкин В.А.}
+\ESKDdate{2217/04/25}
+
+\renewcommand{\ESKDcolumnXfIIIname}{}
+\renewcommand{\ESKDcolumnXfVname}{}
+\ESKDcolumnIX{\ESKDfontIII\ESKDtheDepartment\\\ESKDtheCompany}
+
+\begin{document}
+\setlength{\hsize}{\ESKDframeW}
+\begin{ESKDdrawing}
+\begin{tikzpicture}[every node/.style={draw,align=center},-latex,font=\Huge,baseline=0em]
+\node [text width=22em,align=left] (main) {1. Выбрать порт\\2. Открыть порт\\3. Закрыть порт\\4. Выбрать файл\\5. Отправить файл\\6. Выбрать папку\\7. Разъединить};
+\node [text width=22em,right=40em of main] (f4) {Выбрать файл для~отправки};
+\node [text width=22em,anchor=south west,yshift=2em] (f3) at (f4.north west) {Разорвать\\физическое\\соединение};
+\node [text width=22em,anchor=south west,yshift=2em] (f2) at (f3.north west) {Открыть\\физическое\\соединение};
+\node [text width=22em,anchor=south west,yshift=2em] (f1) at (f2.north west) {Выбрать порт для~соединения};
+\node [text width=22em,anchor=north west,yshift=-2em] (f5) at (f4.south west) {Отправить\\выбранный файл};
+\node [text width=22em,anchor=north west,yshift=-2em] (f6) at (f5.south west) {Выбрать папку\\сохранения файлов};
+\node [text width=22em,anchor=north west,yshift=-2em] (f7) at (f6.south west) {Разорвать\\логическое\\соединение};
+\draw ($(main.east)+(0,6em)$) -| ($(f1.west) + (-15em,0)$) -- node [draw=none,pos=1,above left] {1} (f1);
+\draw ($(main.east)+(0,4em)$) -| ($(f2.west) + (-10em,0)$) -- node [draw=none,pos=1,above left] {2} (f2);
+\draw ($(main.east)+(0,2em)$) -| ($(f3.west) + (-5em,0)$) -- node [draw=none,pos=1,above left] {3} (f3);
+\draw (main) -| ($(f4.west) + (-5em,0)$) -- node [draw=none,pos=1,above left] {4} (f4);
+\draw ($(main.east)+(0,-2em)$) -| ($(f5.west) + (-5em,0)$) -- node [draw=none,pos=1,above left] {5} (f5);
+\draw ($(main.east)+(0,-4em)$) -| ($(f6.west) + (-10em,0)$) -- node [draw=none,pos=1,above left] {6} (f6);
+\draw ($(main.east)+(0,-6em)$) -| ($(f7.west) + (-15em,0)$) -- node [draw=none,pos=1,above left] {7} (f7);
+\draw (f2) -- ($(f2.east)+(5em,0)$);
+\draw (f1) -| ($(f2.east)+(5em,0)$);
+\draw (f3) -- ($(f3.east)+(5em,0)$);
+\draw (f4) -- ($(f4.east)+(5em,0)$);
+\draw (f5) -- ($(f5.east)+(5em,0)$);
+\draw (f6) -- ($(f6.east)+(5em,0)$);
+\draw (f7) -- ($(f7.east)+(5em,0)$);
+\draw ($(f2.east)+(5em,0)$) -- ($(f3.east)+(5em,0)$);
+\draw ($(f3.east)+(5em,0)$) -- ($(f4.east)+(5em,0)$);
+\draw ($(f4.east)+(5em,0)$) -- ($(f5.east)+(5em,0)$);
+\draw ($(f5.east)+(5em,0)$) -- ($(f6.east)+(5em,0)$);
+\draw ($(f6.east)+(5em,0)$) -- ($(f7.east)+(5em,0)$);
+\draw ($(f7.east)+(5em,0)$) -- ($(f7.south east)+(5em,-5em)$) -| ($(main.west)+(-5em,0)$) -- (main);
+\end{tikzpicture}
+\end{ESKDdrawing}
+\end{document}

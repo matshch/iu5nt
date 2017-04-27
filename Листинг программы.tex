@@ -1,0 +1,99 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{indentfirst}
+
+\usepackage{geometry}
+\geometry{left=3cm}
+\geometry{right=2cm}
+\geometry{top=2cm}
+\geometry{bottom=2cm}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{moreverb}
+
+\usepackage{titletoc}
+\newlength{\seclenght}
+\settowidth{\seclenght}{5. }
+\dottedcontents{section}[\the\seclenght]{}{\the\seclenght}{2mm}
+\newlength{\subseclenght}
+\settowidth{\subseclenght}{12.2. }
+\dottedcontents{subsection}[\the\subseclenght]{}{\the\subseclenght}{2mm}
+\newlength{\subsubseclenght}
+\settowidth{\subsubseclenght}{11.3.4. }
+\dottedcontents{subsubsection}[\the\subsubseclenght]{}{\the\subsubseclenght}{2mm}
+\newlength{\pagereflenght}
+\settowidth{\pagereflenght}{\pageref{LastPage}}
+\contentsmargin{\the\pagereflenght}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+\setcounter{tocdepth}{3}
+
+\usepackage{lastpage}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\hrule\vspace{1em}
+\bf Московский государственный технический университет им. Н.Э.\,Баумана\\
+Кафедра <<Системы обработки информации и управления>>\\[1em]
+\hrule
+\end{center}
+
+\vfill
+
+\noindent УТВЕРЖДАЮ:\\[1em]
+\underline{\hspace{12em}} Галкин~В.\,А.\\[1em]
+<<\underline{\hspace{1em}}>> \underline{\hspace{6.5em}} 2017~г.
+
+\vfill\vfill
+
+\begin{center}
+\large Листинг программы\\
+к~курсовой работе\\
+{\Large<<Локальная безадаптерная сеть>>}\\
+(вариант №\,26а)\\
+по~курсу {\Large<<Сетевые технологии в~АСОИУ>>}
+\end{center}
+
+\vfill\vfill\vfill
+
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}l}
+&ИСПОЛНИТЕЛИ:\\[1em]
+&\underline{\hspace{12em}} Лещев А.\,О., ИУ5-64\\[1em]
+&\underline{\hspace{12em}} Мельников К.\,И., ИУ5-64\\[1em]
+&<<\underline{\hspace{1em}}>> \underline{\hspace{6.5em}} 2017~г.\\
+\end{tabular*}
+ 
+\vfill
+
+\begin{center}
+Москва~--- 2017~г.\\[1em]
+\hrule
+\end{center}
+
+\end{titlepage}
+
+\setcounter{page}{2}
+\tableofcontents
+\clearpage
+
+\section{Файл \texttt{App.xaml}}
+\listinginput{1}{App.xaml}
+
+\section{Файл \texttt{App.xaml.cs}}
+\listinginput{1}{App.xaml.cs}
+
+\section{Файл \texttt{MainWindow.xaml}}
+\listinginput{1}{MainWindow.xaml}
+
+\section{Файл \texttt{MainWindow.xaml.cs}}
+\listinginput{1}{MainWindow.xaml.cs}
+
+\section{Файл \texttt{Network.cs}}
+\listinginput{1}{Network.cs}
+
+\end{document}
